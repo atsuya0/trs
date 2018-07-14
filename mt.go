@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -8,7 +10,7 @@ import (
 	"time"
 )
 
-func createTrashCan(path string) error {
+func createTrashCan(path string) error { // ゴミ箱が存在しないなら生成する。
 	if _, err := os.Stat(path); err != nil {
 		if err := os.Mkdir(path, 0700); err != nil {
 			return err
@@ -18,8 +20,10 @@ func createTrashCan(path string) error {
 	return nil
 }
 
-func moveToTrashCan(files) {
-	const now string = strings.Replace(time.Now().Format("2006-01-02 15:04:05"), " ", "_", 1)
+func moveToTrashCan(files) { // ファイルをゴミ箱に移動させる
+	// prefixの生成
+	const layout = time.Now().Format("2006-01-02 15:04:05")
+	const now string = strings.Replace(layout, " ", "_", 1)
 
 	for _, file := range files {
 		if _, err := os.Stat(file); err != nil {
@@ -32,11 +36,34 @@ func moveToTrashCan(files) {
 	}
 }
 
+func optionsDuplicate(options ...*bool) error {
+	sum := 0
+	for _, option := range options {
+		if *option == true {
+			sum++
+		}
+	}
+
+	if sum > 1 {
+		return fmt.Errorf("optionが%v個も指定されています", sum)
+	} else {
+		return nil
+	}
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("引数が足りません")
 		os.Exit(0)
 	}
+
+	var (
+		list    = flag.Bool("l", false, "list")
+		restore = flag.Bool("r", false, "restore")
+		size    = flag.Bool("s", false, "size")
+		delete  = flag.Bool("d", false, "delete")
+	)
+	flag.Parse()
 
 	const trashCanPath string = os.Getenv("HOME") + "/.Trash"
 
