@@ -36,19 +36,19 @@ func moveToTrashCan(files) { // ファイルをゴミ箱に移動させる
 	}
 }
 
-func optionsDuplicate(options ...*bool) error {
-	sum := 0
-	for _, option := range options {
-		if *option == true {
-			sum++
-		}
+func ls(path string) (files []string, err error) {
+	files := make([]string, 0)
+
+	fileInfo, err = ioutil.ReadDir(path)
+	if err != nil {
+		return
 	}
 
-	if sum > 1 {
-		return fmt.Errorf("optionが%v個も指定されています", sum)
-	} else {
-		return nil
+	for _, file := range fileInfo {
+		files = append(files, file.Name())
 	}
+
+	return
 }
 
 func main() {
@@ -64,14 +64,29 @@ func main() {
 		delete  = flag.Bool("d", false, "delete")
 	)
 	flag.Parse()
+	if flag.NFlag() > 1 {
+		fmt.Println("optionが多すぎます")
+		os.Exit(0)
+	}
 
 	const trashCanPath string = os.Getenv("HOME") + "/.Trash"
 
-	err := createTrashCan(trashCanPath)
-	if err != nil {
+	if *list == true {
+		files, err := ls(trashCanPath)
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(0)
+		}
+		fmt.Println(files)
+	} else if *restore == true {
+	} else if *size == true {
+	} else if *delete == true {
+	} else {
+		moveToTrashCan(flag.Args())
+	}
+
+	if err := createTrashCan(trashCanPath); err != nil {
 		log.Fatal(err) // [todo] log 種類調べる
 		os.Exit(0)     // [todo] 番号を変える
 	}
-
-	moveToTrashCan(os.Args)
 }
