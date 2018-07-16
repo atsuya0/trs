@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -20,10 +21,9 @@ func createTrashCan(path string) error { // ゴミ箱が存在しないなら生
 	return nil
 }
 
-func moveToTrashCan(files) { // ファイルをゴミ箱に移動させる
+func moveToTrashCan(files []string) { // ファイルをゴミ箱に移動させる
 	// prefixの生成
-	const layout = time.Now().Format("2006-01-02 15:04:05")
-	const now string = strings.Replace(layout, " ", "_", 1)
+	now := strings.Replace(time.Now().Format("2006-01-02 15:04:05"), " ", "_", 1)
 
 	for _, file := range files {
 		if _, err := os.Stat(file); err != nil {
@@ -36,16 +36,35 @@ func moveToTrashCan(files) { // ファイルをゴミ箱に移動させる
 	}
 }
 
-func ls(path string) (files []string, err error) {
-	files := make([]string, 0)
+//func restore(files) {
+//	for _, file := range files {
+//	}
+//}
 
-	fileInfo, err = ioutil.ReadDir(path)
+func ls(path string) (files []string, err error) {
+	files = make([]string, 0)
+
+	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {
 		return
 	}
 
+	const executable os.FileMode = 0111
+	const green = "\x1b[32m\x1b[1m%s"
+	const blue = "\x1b[34m\x1b[1m%s"
+	const cyan = "\x1b[36m\x1b[1m%s"
+	const white = "\x1b[37m\x1b[0m%s"
+
 	for _, file := range fileInfo {
-		files = append(files, file.Name())
+		if file.IsDir() {
+			files = append(files, fmt.Sprintf(blue, file.Name()))
+		} else if file.Mode()&os.ModeSymlink != 0 {
+			files = append(files, fmt.Sprintf(cyan, file.Name()))
+		} else if file.Mode()&executable != 0 {
+			files = append(files, fmt.Sprintf(green, file.Name()))
+		} else {
+			files = append(files, fmt.Sprintf(white, file.Name()))
+		}
 	}
 
 	return
@@ -69,7 +88,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	const trashCanPath string = os.Getenv("HOME") + "/.Trash"
+	trashCanPath := os.Getenv("HOME") + "/.Trash"
 
 	if *list == true {
 		files, err := ls(trashCanPath)
@@ -77,10 +96,15 @@ func main() {
 			log.Fatal(err)
 			os.Exit(0)
 		}
-		fmt.Println(files)
+		for _, file := range files {
+			fmt.Println(file)
+		}
 	} else if *restore == true {
+		fmt.Println("restore")
 	} else if *size == true {
+		fmt.Println("size")
 	} else if *delete == true {
+		fmt.Println("delete")
 	} else {
 		moveToTrashCan(flag.Args())
 	}
