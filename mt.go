@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-func createTrashCan(path string) error { // ゴミ箱が存在しないなら生成する。
-	if _, err := os.Stat(path); err != nil {
-		if err := os.Mkdir(path, 0700); err != nil {
+func createTrashCan(trashCanPath string) error { // ゴミ箱が存在しないなら生成する。
+	if _, err := os.Stat(trashCanPath); err != nil {
+		if err := os.Mkdir(trashCanPath, 0700); err != nil {
 			return err
 		}
 	}
@@ -21,25 +21,24 @@ func createTrashCan(path string) error { // ゴミ箱が存在しないなら生
 	return nil
 }
 
-func moveToTrashCan(files []string) { // ファイルをゴミ箱に移動させる
-	// prefixの生成
-	now := strings.Replace(time.Now().Format("2006-01-02 15:04:05"), " ", "_", 1)
+func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴミ箱に移動させる
+	prefix := trashCanPath + "/" + time.Now().Format("2006-01-02_15:04:05") + "_"
 
 	for _, file := range files {
 		if _, err := os.Stat(file); err != nil {
 			log.Fatal(err)
 		} else {
-			if err := os.Rename(file, now+"_"+path.Base(file)); err != nil {
+			if err := os.Rename(file, prefix+path.Base(file)); err != nil {
 				log.Fatal(err)
 			}
 		}
 	}
 }
 
-//func restore(files) {
-//	for _, file := range files {
-//	}
-//}
+func restore(trashCanPath string, files []string) {
+	for _, file := range files {
+	}
+}
 
 func ls(path string) (files []string, err error) {
 	files = make([]string, 0)
@@ -106,7 +105,7 @@ func main() {
 	} else if *delete == true {
 		fmt.Println("delete")
 	} else {
-		moveToTrashCan(flag.Args())
+		moveToTrashCan(trashCanPath, flag.Args())
 	}
 
 	if err := createTrashCan(trashCanPath); err != nil {
