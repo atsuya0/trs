@@ -45,6 +45,8 @@ func currentDirNames() ([]string, error) { // カレントディレクトリの�
 	}
 
 	file, err := os.Open(wd)
+	defer file.Close()
+
 	if err != nil {
 		log.Fatal(err)
 		return files, err
@@ -57,22 +59,39 @@ func currentDirNames() ([]string, error) { // カレントディレクトリの�
 	}
 }
 
-func restore(trashCanPath string, files []string) { // ゴミ箱からファイルを取り出す
-	for _, fileName := range files {
+func contains(file string, files []string) bool {
+	for _, v := range files {
+		if file == v {
+			return true
+		}
+	}
+	return false
+}
+
+func restore(trashCanPath string, trashFiles []string) { // ゴミ箱からファイルを取り出す
+	files := currentDirNames()
+
+	for _, fileName := range trashFiles {
 		filePath := trashCanPath + "/" + fileName
 		if _, err := os.Stat(filePath); err != nil {
 			log.Fatal(err)
 		} else {
 			index1 := strings.Index(fileName, "_")
 			index2 := strings.Index(fileName[index1+1:], "_")
-			if err := os.Rename(filePath, fileName[index1+index2+2:]); err != nil {
+			newFileName := fileName[index1+index2+2:]
+
+			if contains(newFileName, files) {
+				fmt.Println("同じファイル名のファイルがあります")
+				continue
+			}
+			if err := os.Rename(filePath, newFileName); err != nil {
 				log.Fatal(err)
 			}
 		}
 	}
 }
 
-func ls(path string) (files []string, err error) { // ゴミ箱の中のファイル一覧を表示
+func list(path string) (files []string, err error) { // ゴミ箱の中のファイル一覧を表示
 	files = make([]string, 0)
 
 	fileInfo, err := ioutil.ReadDir(path)
@@ -127,7 +146,7 @@ func main() {
 	}
 
 	if *l == true {
-		files, err := ls(trashCanPath)
+		files, err := list(trashCanPath)
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(0)
