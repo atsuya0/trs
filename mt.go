@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-// rename conflict
-
 func createTrashCan(trashCanPath string) error { // ゴミ箱が存在しないなら生成する。
 	if _, err := os.Stat(trashCanPath); err != nil {
 		if err := os.Mkdir(trashCanPath, 0700); err != nil {
@@ -34,6 +32,28 @@ func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴ
 				log.Fatal(err)
 			}
 		}
+	}
+}
+
+func currentDirNames() ([]string, error) { // カレントディレクトリのファイル・ディレクトリ名の一覧
+	var files []string
+
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+		return files, err
+	}
+
+	file, err := os.Open(wd)
+	if err != nil {
+		log.Fatal(err)
+		return files, err
+	}
+
+	files, err := file.Readdirnames(0)
+	if err != nil {
+		log.Fatal(err)
+		return files, err
 	}
 }
 
