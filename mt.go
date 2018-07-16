@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+// rename conflict
+
 func createTrashCan(trashCanPath string) error { // ゴミ箱が存在しないなら生成する。
 	if _, err := os.Stat(trashCanPath); err != nil {
 		if err := os.Mkdir(trashCanPath, 0700); err != nil {
@@ -35,12 +37,22 @@ func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴ
 	}
 }
 
-func restore(trashCanPath string, files []string) {
-	for _, file := range files {
+func restore(trashCanPath string, files []string) { // ゴミ箱からファイルを取り出す
+	for _, fileName := range files {
+		filePath := trashCanPath + "/" + fileName
+		if _, err := os.Stat(filePath); err != nil {
+			log.Fatal(err)
+		} else {
+			index1 := strings.Index(fileName, "_")
+			index2 := strings.Index(fileName[index1+1:], "_")
+			if err := os.Rename(filePath, fileName[index1+index2+2:]); err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 }
 
-func ls(path string) (files []string, err error) {
+func ls(path string) (files []string, err error) { // ゴミ箱の中のファイル一覧を表示
 	files = make([]string, 0)
 
 	fileInfo, err := ioutil.ReadDir(path)
@@ -76,10 +88,10 @@ func main() {
 	}
 
 	var (
-		list    = flag.Bool("l", false, "list")
-		restore = flag.Bool("r", false, "restore")
-		size    = flag.Bool("s", false, "size")
-		delete  = flag.Bool("d", false, "delete")
+		l = flag.Bool("l", false, "list")
+		r = flag.Bool("r", false, "restore")
+		s = flag.Bool("s", false, "size")
+		d = flag.Bool("d", false, "delete")
 	)
 	flag.Parse()
 	if flag.NFlag() > 1 {
@@ -89,7 +101,12 @@ func main() {
 
 	trashCanPath := os.Getenv("HOME") + "/.Trash"
 
-	if *list == true {
+	if err := createTrashCan(trashCanPath); err != nil {
+		log.Fatal(err) // [todo] log 種類調べる
+		os.Exit(0)     // [todo] 番号を変える
+	}
+
+	if *l == true {
 		files, err := ls(trashCanPath)
 		if err != nil {
 			log.Fatal(err)
@@ -98,18 +115,13 @@ func main() {
 		for _, file := range files {
 			fmt.Println(file)
 		}
-	} else if *restore == true {
-		fmt.Println("restore")
-	} else if *size == true {
+	} else if *r == true {
+		restore(trashCanPath, flag.Args())
+	} else if *s == true {
 		fmt.Println("size")
-	} else if *delete == true {
+	} else if *d == true {
 		fmt.Println("delete")
 	} else {
 		moveToTrashCan(trashCanPath, flag.Args())
-	}
-
-	if err := createTrashCan(trashCanPath); err != nil {
-		log.Fatal(err) // [todo] log 種類調べる
-		os.Exit(0)     // [todo] 番号を変える
 	}
 }
