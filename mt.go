@@ -7,18 +7,22 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
 func createTrashCan(trashCanPath string) error { // ゴミ箱が存在しないなら生成する。
-	if _, err := os.Stat(trashCanPath); err != nil {
-		if err := os.Mkdir(trashCanPath, 0700); err != nil {
-			return err
-		}
+	if _, err := os.Stat(trashCanPath); err == nil {
+		return nil
 	}
 
-	return nil
+	if err := os.Mkdir(trashCanPath, 0700); err != nil {
+		return err
+	} else {
+		return nil
+	}
+
 }
 
 func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴミ箱に移動させる
@@ -27,10 +31,11 @@ func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴ
 	for _, file := range files {
 		if _, err := os.Stat(file); err != nil {
 			log.Fatal(err)
-		} else {
-			if err := os.Rename(file, prefix+path.Base(file)); err != nil {
-				log.Fatal(err)
-			}
+			continue
+		}
+
+		if err := os.Rename(file, prefix+path.Base(file)); err != nil {
+			log.Fatal(err)
 		}
 	}
 }
@@ -52,11 +57,13 @@ func currentDirNames() ([]string, error) { // カレントディレクトリの�
 		return files, err
 	}
 
-	files, err := file.Readdirnames(0)
+	files, err = file.Readdirnames(0)
 	if err != nil {
 		log.Fatal(err)
 		return files, err
 	}
+
+	return files, err
 }
 
 func contains(file string, files []string) bool {
@@ -68,27 +75,34 @@ func contains(file string, files []string) bool {
 	return false
 }
 
-func restore(trashCanPath string, trashFiles []string) { // ゴミ箱からファイルを取り出す
-	files := currentDirNames()
+// ゴミ箱からファイルを取り出す
+func restore(trashCanPath string, trashFiles []string) error {
+	files, err := currentDirNames()
+	if err != nil {
+		return err
+	}
 
 	for _, fileName := range trashFiles {
 		filePath := trashCanPath + "/" + fileName
 		if _, err := os.Stat(filePath); err != nil {
 			log.Fatal(err)
-		} else {
-			index1 := strings.Index(fileName, "_")
-			index2 := strings.Index(fileName[index1+1:], "_")
-			newFileName := fileName[index1+index2+2:]
+			continue
+		}
 
-			if contains(newFileName, files) {
-				fmt.Println("同じファイル名のファイルがあります")
-				continue
-			}
-			if err := os.Rename(filePath, newFileName); err != nil {
-				log.Fatal(err)
-			}
+		index1 := strings.Index(fileName, "_")
+		index2 := strings.Index(fileName[index1+1:], "_")
+		newFileName := fileName[index1+index2+2:]
+
+		if contains(newFileName, files) {
+			fmt.Println("同じファイル名のファイルがあります")
+			continue
+		}
+		if err := os.Rename(filePath, newFileName); err != nil {
+			log.Fatal(err)
 		}
 	}
+
+	return nil
 }
 
 func list(path string) (files []string, err error) { // ゴミ箱の中のファイル一覧を表示
@@ -118,6 +132,27 @@ func list(path string) (files []string, err error) { // ゴミ箱の中のファ
 	}
 
 	return
+}
+
+func size(root string) (int64, error) {
+	var sum int64 = 0
+
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			sum += info.Size()
+		}
+
+		return nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return sum, nil
 }
 
 func main() {
@@ -155,9 +190,18 @@ func main() {
 			fmt.Println(file)
 		}
 	} else if *r == true {
-		restore(trashCanPath, flag.Args())
+		if err := restore(trashCanPath, flag.Args()); err != nil {
+			log.Fatal(err)
+			os.Exit(0)
+		}
 	} else if *s == true {
-		fmt.Println("size")
+		trashCanSize, err := size(trashCanPath)
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(0)
+		}
+
+		fmt.Printf("%d MB", trashCanSize/(1024*1024))
 	} else if *d == true {
 		fmt.Println("delete")
 	} else {
