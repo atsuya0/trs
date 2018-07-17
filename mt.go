@@ -179,7 +179,7 @@ func del(path string, file string) error {
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("引数が足りません")
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	var (
@@ -191,21 +191,21 @@ func main() {
 	flag.Parse()
 	if flag.NFlag() > 1 {
 		fmt.Println("optionが多すぎます")
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	trashCanPath := os.Getenv("HOME") + "/.Trash"
 
 	if err := createTrashCan(trashCanPath); err != nil {
 		log.Fatal(err) // [todo] log 種類調べる
-		os.Exit(0)     // [todo] 番号を変える
+		os.Exit(1)
 	}
 
 	if *l == true {
 		files, err := list(trashCanPath)
 		if err != nil {
 			log.Fatal(err)
-			os.Exit(0)
+			os.Exit(1)
 		}
 		for _, file := range files {
 			fmt.Println(file)
@@ -213,20 +213,20 @@ func main() {
 	} else if *r == true {
 		if err := restore(trashCanPath, flag.Args()); err != nil {
 			log.Fatal(err)
-			os.Exit(0)
+			os.Exit(1)
 		}
 	} else if *s == true {
 		trashCanSize, err := size(trashCanPath)
 		if err != nil {
 			log.Fatal(err)
-			os.Exit(0)
+			os.Exit(1)
 		}
 
 		fmt.Printf("%d MB", trashCanSize/(1024*1024))
 	} else if *d == true {
 		if err := del(trashCanPath, flag.Args()[0]); err != nil {
 			log.Fatal(err)
-			os.Exit(0)
+			os.Exit(1)
 		}
 	} else {
 		moveToTrashCan(trashCanPath, flag.Args())
