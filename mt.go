@@ -176,7 +176,7 @@ func del(path string, file string) error {
 	return nil
 }
 
-func main() {
+func init() {
 	if len(os.Args) < 2 {
 		log.Fatalln("引数が足りません")
 	}
@@ -187,13 +187,16 @@ func main() {
 		s = flag.Bool("s", false, "size")
 		d = flag.Bool("d", false, "delete")
 	)
+
 	flag.Parse()
 	if flag.NFlag() > 1 {
 		log.Fatalln("optionが多すぎます")
 	}
 
 	trashCanPath := os.Getenv("HOME") + "/.Trash"
+}
 
+func main() {
 	if err := createTrashCan(trashCanPath); err != nil {
 		log.Fatalln(err)
 	}
