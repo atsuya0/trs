@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -155,6 +156,26 @@ func size(root string) (int64, error) {
 	return sum, nil
 }
 
+func del(path string, file string) error {
+	fmt.Printf("target: %s", file)
+	fmt.Println("'yes' or 'no'")
+
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	for scanner.Text() != "yes" && scanner.Text() != "no" {
+		fmt.Println("'yes' or 'no'")
+		scanner.Scan()
+	}
+
+	if scanner.Text() == "yes" {
+		if err := os.Remove(path + "/" + file); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("引数が足りません")
@@ -203,7 +224,10 @@ func main() {
 
 		fmt.Printf("%d MB", trashCanSize/(1024*1024))
 	} else if *d == true {
-		fmt.Println("delete")
+		if err := del(trashCanPath, flag.Args()[0]); err != nil {
+			log.Fatal(err)
+			os.Exit(0)
+		}
 	} else {
 		moveToTrashCan(trashCanPath, flag.Args())
 	}
