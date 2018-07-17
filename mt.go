@@ -180,7 +180,9 @@ func init() {
 	if len(os.Args) < 2 {
 		log.Fatalln("引数が足りません")
 	}
+}
 
+func main() {
 	var (
 		l = flag.Bool("l", false, "list")
 		r = flag.Bool("r", false, "restore")
@@ -194,9 +196,7 @@ func init() {
 	}
 
 	trashCanPath := os.Getenv("HOME") + "/.Trash"
-}
 
-func main() {
 	if err := createTrashCan(trashCanPath); err != nil {
 		log.Fatalln(err)
 	}
