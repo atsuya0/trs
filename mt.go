@@ -31,12 +31,12 @@ func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴ
 
 	for _, file := range files {
 		if _, err := os.Stat(file); err != nil {
-			log.Fatal(err)
+			log.Println(err)
 			continue
 		}
 
 		if err := os.Rename(file, prefix+path.Base(file)); err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}
 }
@@ -46,7 +46,7 @@ func currentDirNames() ([]string, error) { // カレントディレクトリの�
 
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return files, err
 	}
 
@@ -54,13 +54,13 @@ func currentDirNames() ([]string, error) { // カレントディレクトリの�
 	defer file.Close()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return files, err
 	}
 
 	files, err = file.Readdirnames(0)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return files, err
 	}
 
@@ -86,7 +86,7 @@ func restore(trashCanPath string, trashFiles []string) error {
 	for _, fileName := range trashFiles {
 		filePath := trashCanPath + "/" + fileName
 		if _, err := os.Stat(filePath); err != nil {
-			log.Fatal(err)
+			log.Println(err)
 			continue
 		}
 
@@ -95,11 +95,11 @@ func restore(trashCanPath string, trashFiles []string) error {
 		newFileName := fileName[index1+index2+2:]
 
 		if contains(newFileName, files) {
-			fmt.Println("同じファイル名のファイルがあります")
+			log.Println("同じファイル名のファイルがあります")
 			continue
 		}
 		if err := os.Rename(filePath, newFileName); err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}
 
@@ -178,8 +178,7 @@ func del(path string, file string) error {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("引数が足りません")
-		os.Exit(0)
+		log.Fatalln("引数が足りません")
 	}
 
 	var (
@@ -190,43 +189,37 @@ func main() {
 	)
 	flag.Parse()
 	if flag.NFlag() > 1 {
-		fmt.Println("optionが多すぎます")
-		os.Exit(0)
+		log.Fatalln("optionが多すぎます")
 	}
 
 	trashCanPath := os.Getenv("HOME") + "/.Trash"
 
 	if err := createTrashCan(trashCanPath); err != nil {
-		log.Fatal(err) // [todo] log 種類調べる
-		os.Exit(0)     // [todo] 番号を変える
+		log.Fatalln(err)
 	}
 
 	if *l == true {
 		files, err := list(trashCanPath)
 		if err != nil {
-			log.Fatal(err)
-			os.Exit(0)
+			log.Fatalln(err)
 		}
 		for _, file := range files {
 			fmt.Println(file)
 		}
 	} else if *r == true {
 		if err := restore(trashCanPath, flag.Args()); err != nil {
-			log.Fatal(err)
-			os.Exit(0)
+			log.Fatalln(err)
 		}
 	} else if *s == true {
 		trashCanSize, err := size(trashCanPath)
 		if err != nil {
-			log.Fatal(err)
-			os.Exit(0)
+			log.Fatalln(err)
 		}
 
 		fmt.Printf("%d MB", trashCanSize/(1024*1024))
 	} else if *d == true {
 		if err := del(trashCanPath, flag.Args()[0]); err != nil {
-			log.Fatal(err)
-			os.Exit(0)
+			log.Fatalln(err)
 		}
 	} else {
 		moveToTrashCan(trashCanPath, flag.Args())
