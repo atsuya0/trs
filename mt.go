@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -106,7 +107,7 @@ func restore(trashCanPath string, trashFiles []string) error {
 	return nil
 }
 
-func list(path string) (files []string, err error) { // ゴミ箱の中のファイル一覧を表示
+func list(path string, day int) (files []string, err error) { // ゴミ箱の中のファイル一覧を表示
 	files = make([]string, 0)
 
 	fileInfo, err := ioutil.ReadDir(path)
@@ -120,15 +121,23 @@ func list(path string) (files []string, err error) { // ゴミ箱の中のファ
 	const cyan = "\x1b[36m\x1b[1m%s"
 	const white = "\x1b[37m\x1b[0m%s"
 
-	for _, file := range fileInfo {
-		if file.IsDir() {
-			files = append(files, fmt.Sprintf(blue, file.Name()))
-		} else if file.Mode()&os.ModeSymlink != 0 {
-			files = append(files, fmt.Sprintf(cyan, file.Name()))
-		} else if file.Mode()&executable != 0 {
-			files = append(files, fmt.Sprintf(green, file.Name()))
+	now := time.Now()
+	oneMonthAgo := now.AddDate(0, 0, -day)
+
+	for _, info := range fileInfo {
+		internalStat := info.Sys().(*syscall.Stat_t)
+		if (internalStat.Ctim.Nano() - oneMonthAgo.UnixNano()) < 0 {
+			continue
+		}
+
+		if info.IsDir() {
+			files = append(files, fmt.Sprintf(blue, info.Name()))
+		} else if info.Mode()&os.ModeSymlink != 0 {
+			files = append(files, fmt.Sprintf(cyan, info.Name()))
+		} else if info.Mode()&executable != 0 {
+			files = append(files, fmt.Sprintf(green, info.Name()))
 		} else {
-			files = append(files, fmt.Sprintf(white, file.Name()))
+			files = append(files, fmt.Sprintf(white, info.Name()))
 		}
 	}
 
@@ -176,6 +185,16 @@ func del(path string, file string) error {
 	return nil
 }
 
+func isDuplicatedOptions() bool {
+	if flag.NFlag() > 1 {
+		log.Println("optionが多すぎます")
+
+		return true
+	}
+
+	return false
+}
+
 func init() {
 	if len(os.Args) < 2 {
 		log.Fatalln("引数が足りません")
@@ -184,16 +203,13 @@ func init() {
 
 func main() {
 	var (
-		l = flag.Bool("l", false, "list")
-		r = flag.Bool("r", false, "restore")
-		s = flag.Bool("s", false, "size")
-		d = flag.Bool("d", false, "delete")
+		l   = flag.Bool("l", false, "list")
+		r   = flag.Bool("r", false, "restore")
+		s   = flag.Bool("s", false, "size")
+		d   = flag.Bool("d", false, "delete")
+		day = flag.Int("day", 1, "[n] day ago")
 	)
-
 	flag.Parse()
-	if flag.NFlag() > 1 {
-		log.Fatalln("optionが多すぎます")
-	}
 
 	trashCanPath := os.Getenv("HOME") + "/.Trash"
 
@@ -202,7 +218,7 @@ func main() {
 	}
 
 	if *l == true {
-		files, err := list(trashCanPath)
+		files, err := list(trashCanPath, *day)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -210,10 +226,18 @@ func main() {
 			fmt.Println(file)
 		}
 	} else if *r == true {
+		if isDuplicatedOptions() {
+			log.Fatalln("optionが不正です")
+		}
+
 		if err := restore(trashCanPath, flag.Args()); err != nil {
 			log.Fatalln(err)
 		}
 	} else if *s == true {
+		if isDuplicatedOptions() {
+			log.Fatalln("optionが不正です")
+		}
+
 		trashCanSize, err := size(trashCanPath)
 		if err != nil {
 			log.Fatalln(err)
@@ -221,6 +245,10 @@ func main() {
 
 		fmt.Printf("%d MB", trashCanSize/(1024*1024))
 	} else if *d == true {
+		if isDuplicatedOptions() {
+			log.Fatalln("optionが不正です")
+		}
+
 		if err := del(trashCanPath, flag.Args()[0]); err != nil {
 			log.Fatalln(err)
 		}
