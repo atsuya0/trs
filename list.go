@@ -1,0 +1,47 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"syscall"
+	"time"
+)
+
+// ゴミ箱の中のファイル一覧を表示
+func list(path string, day int) (files []string, err error) {
+	files = make([]string, 0)
+
+	fileInfo, err := ioutil.ReadDir(path)
+	if err != nil {
+		return
+	}
+
+	const executable os.FileMode = 0111
+	const green = "\x1b[32m\x1b[1m%s"
+	const blue = "\x1b[34m\x1b[1m%s"
+	const cyan = "\x1b[36m\x1b[1m%s"
+	const white = "\x1b[37m\x1b[0m%s"
+
+	now := time.Now()
+	oneMonthAgo := now.AddDate(0, 0, -day)
+
+	for _, info := range fileInfo {
+		internalStat := info.Sys().(*syscall.Stat_t)
+		if (internalStat.Ctim.Nano() - oneMonthAgo.UnixNano()) < 0 {
+			continue
+		}
+
+		if info.IsDir() {
+			files = append(files, fmt.Sprintf(blue, info.Name()))
+		} else if info.Mode()&os.ModeSymlink != 0 {
+			files = append(files, fmt.Sprintf(cyan, info.Name()))
+		} else if info.Mode()&executable != 0 {
+			files = append(files, fmt.Sprintf(green, info.Name()))
+		} else {
+			files = append(files, fmt.Sprintf(white, info.Name()))
+		}
+	}
+
+	return
+}
