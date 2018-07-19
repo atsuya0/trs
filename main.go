@@ -33,11 +33,12 @@ func init() {
 
 func main() {
 	var (
-		l   = flag.Bool("l", false, "list")
-		r   = flag.Bool("r", false, "restore")
-		s   = flag.Bool("s", false, "size")
-		d   = flag.Bool("d", false, "delete")
-		day = flag.Int("day", 1, "[n] day ago")
+		l       = flag.Bool("l", false, "list")
+		r       = flag.Bool("r", false, "restore")
+		s       = flag.Bool("s", false, "size")
+		d       = flag.Bool("d", false, "delete")
+		day     = flag.Int("day", 1, "[n] day ago")
+		reverse = flag.Bool("reverse", false, "reverse")
 	)
 	flag.Parse()
 
@@ -48,7 +49,7 @@ func main() {
 	}
 
 	if *l == true {
-		files, err := list(trashCanPath, *day)
+		files, err := list(trashCanPath, *day, *reverse)
 		if err != nil {
 			log.Fatalln(err)
 		}

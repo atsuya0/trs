@@ -25,7 +25,7 @@ func (f Files) Swap(i, j int) {
 }
 
 // ゴミ箱の中のファイル一覧を表示
-func list(path string, day int) (files []string, err error) {
+func list(path string, day int, reverse bool) (files []string, err error) {
 	files = make([]string, 0)
 
 	fileInfo, err := ioutil.ReadDir(path)
@@ -33,7 +33,11 @@ func list(path string, day int) (files []string, err error) {
 		return
 	}
 
-	sort.Sort(Files(fileInfo))
+	if reverse {
+		sort.Sort(sort.Reverse(Files(fileInfo)))
+	} else {
+		sort.Sort(Files(fileInfo))
+	}
 
 	const executable os.FileMode = 0111
 	const green = "\x1b[32m\x1b[1m%s"
