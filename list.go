@@ -27,7 +27,11 @@ func list(path string, day int) (files []string, err error) {
 	oneMonthAgo := now.AddDate(0, 0, -day)
 
 	for _, info := range fileInfo {
-		internalStat := info.Sys().(*syscall.Stat_t)
+		internalStat, ok := info.Sys().(*syscall.Stat_t)
+		if !ok {
+			err = fmt.Errorf("fileInfo.Sys(): cast error")
+			return
+		}
 		if (internalStat.Ctim.Nano() - oneMonthAgo.UnixNano()) < 0 {
 			continue
 		}
