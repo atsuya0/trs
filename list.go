@@ -4,9 +4,25 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"syscall"
 	"time"
 )
+
+type Files []os.FileInfo
+
+func (f Files) Len() int {
+	return len(f)
+}
+
+func (f Files) Less(i, j int) bool {
+	return f[i].Sys().(*syscall.Stat_t).Ctim.Nano() <
+		f[j].Sys().(*syscall.Stat_t).Ctim.Nano()
+}
+
+func (f Files) Swap(i, j int) {
+	f[i], f[j] = f[j], f[i]
+}
 
 // ゴミ箱の中のファイル一覧を表示
 func list(path string, day int) (files []string, err error) {
@@ -16,6 +32,8 @@ func list(path string, day int) (files []string, err error) {
 	if err != nil {
 		return
 	}
+
+	sort.Sort(Files(fileInfo))
 
 	const executable os.FileMode = 0111
 	const green = "\x1b[32m\x1b[1m%s"
