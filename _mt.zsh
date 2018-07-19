@@ -10,7 +10,9 @@ function _mt() {
 
   case "${state}" in
     list )
-      _arguments '-day[? day ago]: :->none'
+      _arguments \
+        '-days[? days ago]: :->days' \
+        '-reverse[reverse]: :->none'
     ;;
     trash )
       _values 'files in trash can' $(command ls -Ar ${trash})
