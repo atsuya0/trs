@@ -22,13 +22,7 @@ func createTrashCan(trashCanPath string) error { // ゴミ箱が存在しない�
 
 // optionの数が多いか調べる
 func isDuplicatedOptions() bool {
-	if flag.NFlag() > 1 {
-		log.Println("optionが多すぎます")
-
-		return true
-	}
-
-	return false
+	return flag.NFlag() > 1
 }
 
 func init() {
