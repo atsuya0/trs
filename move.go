@@ -4,19 +4,25 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"strconv"
 	"time"
 )
 
-func moveToTrashCan(trashCanPath string, files []string) { // ファイルをゴミ箱に移動させる
-	prefix := trashCanPath + "/" + time.Now().Format("2006-01-02_15:04:05") + "_"
+func moveToTrashCan(trashCanPath string, fileNames []string) { // ファイルをゴミ箱に移動させる
+	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
 
-	for _, file := range files {
-		if _, err := os.Stat(file); err != nil {
+	for _, fileName := range fileNames {
+		if _, err := os.Stat(fileName); err != nil {
 			log.Println(err)
 			continue
 		}
+		newFileName := trashCanPath + "/" +
+			path.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))]) +
+			prefix +
+			filepath.Ext(fileName)
 
-		if err := os.Rename(file, prefix+path.Base(file)); err != nil {
+		if err := os.Rename(fileName, newFileName); err != nil {
 			log.Println(err)
 		}
 	}

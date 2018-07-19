@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -56,9 +57,9 @@ func restore(trashCanPath string, trashFiles []string) error {
 			continue
 		}
 
-		index1 := strings.Index(fileName, "_")
-		index2 := strings.Index(fileName[index1+1:], "_")
-		newFileName := fileName[index1+index2+2:]
+		newFileName :=
+			fileName[:strings.LastIndex(fileName, "_")] +
+				filepath.Ext(fileName)
 
 		if contains(newFileName, files) {
 			log.Println("同じファイル名のファイルがあります")
