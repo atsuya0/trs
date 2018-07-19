@@ -25,7 +25,7 @@ func (f Files) Swap(i, j int) {
 }
 
 // ゴミ箱の中のファイル一覧を表示
-func list(path string, day int, reverse bool) (files []string, err error) {
+func list(path string, days int, reverse bool) (files []string, err error) {
 	files = make([]string, 0)
 
 	fileInfo, err := ioutil.ReadDir(path)
@@ -46,7 +46,7 @@ func list(path string, day int, reverse bool) (files []string, err error) {
 	const white = "\x1b[37m\x1b[0m%s"
 
 	now := time.Now()
-	oneMonthAgo := now.AddDate(0, 0, -day)
+	oneMonthAgo := now.AddDate(0, 0, -days)
 
 	for _, info := range fileInfo {
 		internalStat, ok := info.Sys().(*syscall.Stat_t)

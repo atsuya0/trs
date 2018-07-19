@@ -37,7 +37,7 @@ func main() {
 		r       = flag.Bool("r", false, "restore")
 		s       = flag.Bool("s", false, "size")
 		d       = flag.Bool("d", false, "delete")
-		day     = flag.Int("day", 1, "[n] day ago")
+		days    = flag.Int("days", 1, "[n] days ago")
 		reverse = flag.Bool("reverse", false, "reverse")
 	)
 	flag.Parse()
@@ -49,7 +49,7 @@ func main() {
 	}
 
 	if *l == true {
-		files, err := list(trashCanPath, *day, *reverse)
+		files, err := list(trashCanPath, *days, *reverse)
 		if err != nil {
 			log.Fatalln(err)
 		}
