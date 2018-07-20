@@ -81,8 +81,11 @@ func main() {
 			log.Fatalln("optionが不正です")
 		}
 
-		if err := del(trashPath, flag.Args()[0]); err != nil {
-			log.Fatalln(err)
+		file := flag.Args()[0]
+		if del(file) {
+			if err := os.RemoveAll(trashPath + "/" + file); err != nil {
+				log.Fatalln(err)
+			}
 		}
 	} else if *ad == true {
 		if isDuplicatedOptions() {
@@ -91,7 +94,7 @@ func main() {
 
 		if files, err := autoDel(trashPath); err == nil {
 			for _, file := range files {
-				if err := os.Remove(trashPath + "/" + file); err != nil {
+				if err := os.RemoveAll(file); err != nil {
 					log.Fatalln(err)
 				}
 			}

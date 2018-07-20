@@ -10,7 +10,7 @@ import (
 )
 
 // ゴミ箱に入っている、指定した一つのファイルを削除する。
-func del(path string, file string) error {
+func del(file string) bool {
 	fmt.Printf("target: %s\n", file)
 	fmt.Println("'yes' or 'no'")
 
@@ -22,12 +22,10 @@ func del(path string, file string) error {
 	}
 
 	if scanner.Text() == "yes" {
-		if err := os.RemoveAll(path + "/" + file); err != nil {
-			return err
-		}
+		return true
+	} else {
+		return false
 	}
-
-	return nil
 }
 
 func autoDel(path string) (files []string, err error) {
@@ -46,7 +44,7 @@ func autoDel(path string) (files []string, err error) {
 			return
 		}
 		if (internalStat.Ctim.Nano() - oneMonthAgo.UnixNano()) < 0 {
-			files = append(files, info.Name())
+			files = append(files, path+"/"+info.Name())
 		}
 	}
 
