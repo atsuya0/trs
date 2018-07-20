@@ -57,15 +57,15 @@ func restore(trashPath string, trashFiles []string) error {
 			continue
 		}
 
-		newFileName :=
+		newFilePath :=
 			fileName[:strings.LastIndex(fileName, "_")] +
 				filepath.Ext(fileName)
 
-		if contains(newFileName, files) {
+		if contains(newFilePath, files) {
 			log.Println("A file with the same name already exists.")
 			continue
 		}
-		if err := os.Rename(filePath, newFileName); err != nil {
+		if err := os.Rename(filePath, newFilePath); err != nil {
 			log.Println(err)
 		}
 	}
