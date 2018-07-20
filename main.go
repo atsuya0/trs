@@ -7,12 +7,12 @@ import (
 	"os"
 )
 
-func createTrashCan(trashCanPath string) error { // ゴミ箱が存在しないなら生成する。
-	if _, err := os.Stat(trashCanPath); err == nil {
+func createTrash(trashPath string) error { // ゴミ箱が存在しないなら生成する。
+	if _, err := os.Stat(trashPath); err == nil {
 		return nil
 	}
 
-	if err := os.Mkdir(trashCanPath, 0700); err != nil {
+	if err := os.Mkdir(trashPath, 0700); err != nil {
 		return err
 	} else {
 		return nil
@@ -43,14 +43,14 @@ func main() {
 	)
 	flag.Parse()
 
-	trashCanPath := os.Getenv("HOME") + "/.Trash"
+	trashPath := os.Getenv("HOME") + "/.Trash"
 
-	if err := createTrashCan(trashCanPath); err != nil {
+	if err := createTrash(trashPath); err != nil {
 		log.Fatalln(err)
 	}
 
 	if *l == true {
-		files, err := list(trashCanPath, *days, *reverse)
+		files, err := list(trashPath, *days, *reverse)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -62,7 +62,7 @@ func main() {
 			log.Fatalln("optionが不正です")
 		}
 
-		if err := restore(trashCanPath, flag.Args()); err != nil {
+		if err := restore(trashPath, flag.Args()); err != nil {
 			log.Fatalln(err)
 		}
 	} else if *s == true {
@@ -70,18 +70,18 @@ func main() {
 			log.Fatalln("optionが不正です")
 		}
 
-		trashCanSize, err := size(trashCanPath)
+		trashSize, err := size(trashPath)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		fmt.Printf("%d MB", trashCanSize/(1024*1024))
+		fmt.Printf("%d MB", trashSize/(1024*1024))
 	} else if *d == true {
 		if isDuplicatedOptions() {
 			log.Fatalln("optionが不正です")
 		}
 
-		if err := del(trashCanPath, flag.Args()[0]); err != nil {
+		if err := del(trashPath, flag.Args()[0]); err != nil {
 			log.Fatalln(err)
 		}
 	} else if *ad == true {
@@ -89,9 +89,9 @@ func main() {
 			log.Fatalln("optionが不正です")
 		}
 
-		if files, err := autoDel(trashCanPath); err == nil {
+		if files, err := autoDel(trashPath); err == nil {
 			for _, file := range files {
-				if err := os.Remove(trashCanPath + "/" + file); err != nil {
+				if err := os.Remove(trashPath + "/" + file); err != nil {
 					log.Fatalln(err)
 				}
 			}
@@ -99,6 +99,6 @@ func main() {
 			log.Fatalln(err)
 		}
 	} else {
-		moveToTrashCan(trashCanPath, flag.Args())
+		moveToTrash(trashPath, flag.Args())
 	}
 }

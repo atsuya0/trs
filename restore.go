@@ -44,14 +44,14 @@ func contains(file string, files []string) bool {
 }
 
 // ゴミ箱からファイルを取り出す
-func restore(trashCanPath string, trashFiles []string) error {
+func restore(trashPath string, trashFiles []string) error {
 	files, err := currentDirNames()
 	if err != nil {
 		return err
 	}
 
 	for _, fileName := range trashFiles {
-		filePath := trashCanPath + "/" + fileName
+		filePath := trashPath + "/" + fileName
 		if _, err := os.Stat(filePath); err != nil {
 			log.Println(err)
 			continue

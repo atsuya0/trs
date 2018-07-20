@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func moveToTrashCan(trashCanPath string, fileNames []string) { // ファイルをゴミ箱に移動させる
+func moveToTrash(trashPath string, fileNames []string) { // ファイルをゴミ箱に移動させる
 	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
 
 	for _, fileName := range fileNames {
@@ -17,7 +17,7 @@ func moveToTrashCan(trashCanPath string, fileNames []string) { // ファイル�
 			log.Println(err)
 			continue
 		}
-		newFileName := trashCanPath + "/" +
+		newFileName := trashPath + "/" +
 			path.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))]) +
 			prefix +
 			filepath.Ext(fileName)
