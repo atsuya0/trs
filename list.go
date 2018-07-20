@@ -46,7 +46,7 @@ func list(path string, days int, reverse bool) (files []string, err error) {
 	const white = "\x1b[37m\x1b[0m%s"
 
 	now := time.Now()
-	oneMonthAgo := now.AddDate(0, 0, -days)
+	daysAgo := now.AddDate(0, 0, -days)
 
 	for _, info := range fileInfo {
 		internalStat, ok := info.Sys().(*syscall.Stat_t)
@@ -54,7 +54,7 @@ func list(path string, days int, reverse bool) (files []string, err error) {
 			err = fmt.Errorf("fileInfo.Sys(): cast error")
 			return
 		}
-		if (internalStat.Ctim.Nano() - oneMonthAgo.UnixNano()) < 0 {
+		if (internalStat.Ctim.Nano() - daysAgo.UnixNano()) < 0 {
 			continue
 		}
 
