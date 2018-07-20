@@ -34,11 +34,12 @@ func init() {
 func main() {
 	var (
 		l       = flag.Bool("l", false, "list")
+		days    = flag.Int("days", 1, "[n] days ago")
+		reverse = flag.Bool("reverse", false, "reverse")
 		r       = flag.Bool("r", false, "restore")
 		s       = flag.Bool("s", false, "size")
 		d       = flag.Bool("d", false, "delete")
-		days    = flag.Int("days", 1, "[n] days ago")
-		reverse = flag.Bool("reverse", false, "reverse")
+		ad      = flag.Bool("auto-delete", false, "delete files moved to trash one month ago")
 	)
 	flag.Parse()
 
@@ -81,6 +82,20 @@ func main() {
 		}
 
 		if err := del(trashCanPath, flag.Args()[0]); err != nil {
+			log.Fatalln(err)
+		}
+	} else if *ad == true {
+		if isDuplicatedOptions() {
+			log.Fatalln("optionが不正です")
+		}
+
+		if files, err := autoDel(trashCanPath); err == nil {
+			for _, file := range files {
+				if err := os.Remove(trashCanPath + "/" + file); err != nil {
+					log.Fatalln(err)
+				}
+			}
+		} else {
 			log.Fatalln(err)
 		}
 	} else {
