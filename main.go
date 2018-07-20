@@ -34,7 +34,7 @@ func init() {
 func main() {
 	var (
 		l       = flag.Bool("l", false, "list")
-		days    = flag.Int("days", 1, "[n] days ago")
+		days    = flag.Int("days", 31, "[n] days ago")
 		reverse = flag.Bool("reverse", false, "reverse")
 		r       = flag.Bool("r", false, "restore")
 		s       = flag.Bool("s", false, "size")
