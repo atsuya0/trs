@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -44,10 +45,12 @@ func contains(file string, files []string) bool {
 }
 
 // ゴミ箱からファイルを取り出す
-func restore(trashPath string, trashFiles []string) error {
+func restore(trashPath string, trashFiles []string) ([][]string, error) {
+	setFiles := make([][]string, 0)
+
 	files, err := currentDirNames()
 	if err != nil {
-		return err
+		return setFiles, err
 	}
 
 	for _, fileName := range trashFiles {
@@ -65,10 +68,8 @@ func restore(trashPath string, trashFiles []string) error {
 			log.Println("A file with the same name already exists.")
 			continue
 		}
-		if err := os.Rename(filePath, newFilePath); err != nil {
-			log.Println(err)
-		}
+		setFiles = append(setFiles, []string{filePath, newFilePath})
 	}
 
-	return nil
+	return setFiles, err
 }

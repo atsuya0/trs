@@ -62,9 +62,16 @@ func main() {
 			log.Fatalln("optionが不正です")
 		}
 
-		if err := restore(trashPath, flag.Args()); err != nil {
+		if setFiles, err := restore(trashPath, flag.Args()); err == nil {
+			for _, setFile := range setFiles {
+				if err := os.Rename(setFile[0], setFile[1]); err != nil {
+					log.Println(err)
+				}
+			}
+		} else {
 			log.Fatalln(err)
 		}
+
 	} else if *s == true {
 		if isDuplicatedOptions() {
 			log.Fatalln("optionが不正です")
