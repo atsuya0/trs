@@ -1,32 +1,15 @@
-package main
+package cmd
 
 import (
-	"bufio"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"syscall"
 	"time"
+
+	"github.com/spf13/cobra"
 )
-
-// ゴミ箱に入っている、指定した一つのファイルを削除する。
-func del(file string) bool {
-	fmt.Printf("target: %s\n", file)
-	fmt.Println("'yes' or 'no'")
-
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	for scanner.Text() != "yes" && scanner.Text() != "no" {
-		fmt.Println("'yes' or 'no'")
-		scanner.Scan()
-	}
-
-	if scanner.Text() == "yes" {
-		return true
-	} else {
-		return false
-	}
-}
 
 func autoDel(path string) (files []string, err error) {
 	fileInfo, err := ioutil.ReadDir(path)
@@ -49,4 +32,24 @@ func autoDel(path string) (files []string, err error) {
 	}
 
 	return
+}
+
+func createAutoDeleteCmd(trashPath string) *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "auto-delete",
+		Short: "delete files that passed one month after moving to the trash can",
+		Run: func(cmd *cobra.Command, args []string) {
+			if files, err := autoDel(trashPath); err == nil {
+				for _, file := range files {
+					if err := os.RemoveAll(file); err != nil {
+						log.Fatalln(err)
+					}
+				}
+			} else {
+				log.Fatalln(err)
+			}
+		},
+	}
+
+	return cmd
 }

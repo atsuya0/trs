@@ -1,13 +1,23 @@
-package main
+package cmd
 
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 	"syscall"
 	"time"
+
+	"github.com/spf13/cobra"
 )
+
+type Options struct {
+	days    int
+	reverse bool
+}
+
+var opt = &Options{}
 
 type Files []os.FileInfo
 
@@ -25,7 +35,7 @@ func (f Files) Swap(i, j int) {
 }
 
 // ゴミ箱の中のファイル一覧を表示
-func list(path string, days int, reverse bool) (files []string, err error) {
+func list(path string) (files []string, err error) {
 	files = make([]string, 0)
 
 	fileInfo, err := ioutil.ReadDir(path)
@@ -33,7 +43,7 @@ func list(path string, days int, reverse bool) (files []string, err error) {
 		return
 	}
 
-	if reverse {
+	if opt.reverse {
 		sort.Sort(sort.Reverse(Files(fileInfo)))
 	} else {
 		sort.Sort(Files(fileInfo))
@@ -46,7 +56,7 @@ func list(path string, days int, reverse bool) (files []string, err error) {
 	const white = "\x1b[37m\x1b[0m%s"
 
 	now := time.Now()
-	daysAgo := now.AddDate(0, 0, -days)
+	daysAgo := now.AddDate(0, 0, -opt.days)
 
 	for _, info := range fileInfo {
 		internalStat, ok := info.Sys().(*syscall.Stat_t)
@@ -70,4 +80,25 @@ func list(path string, days int, reverse bool) (files []string, err error) {
 	}
 
 	return
+}
+
+func createListCmd(trashPath string) *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "list",
+		Short: "The list of the trash",
+		Run: func(cmd *cobra.Command, args []string) {
+			files, err := list(trashPath)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			for _, file := range files {
+				fmt.Println(file)
+			}
+		},
+	}
+
+	cmd.Flags().IntVarP(&opt.days, "days", "d", 31, "How many days ago")
+	cmd.Flags().BoolVarP(&opt.reverse, "reverse", "r", false, "display in reverse order")
+
+	return cmd
 }

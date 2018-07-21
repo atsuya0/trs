@@ -1,10 +1,12 @@
-package main
+package cmd
 
 import (
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 func currentDirNames() ([]string, error) { // カレントディレクトリのファイル・ディレクトリ名の一覧
@@ -71,4 +73,24 @@ func restore(trashPath string, trashFiles []string) ([][]string, error) {
 	}
 
 	return setFiles, err
+}
+
+func createRestoreCmd(trashPath string) *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "restore",
+		Short: "move files in the trash to the current directory",
+		Run: func(cmd *cobra.Command, args []string) {
+			if setFiles, err := restore(trashPath, args); err == nil {
+				for _, setFile := range setFiles {
+					if err := os.Rename(setFile[0], setFile[1]); err != nil {
+						log.Println(err)
+					}
+				}
+			} else {
+				log.Fatalln(err)
+			}
+		},
+	}
+
+	return cmd
 }
