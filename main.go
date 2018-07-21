@@ -109,6 +109,10 @@ func main() {
 			log.Fatalln(err)
 		}
 	} else {
-		moveToTrash(trashPath, flag.Args())
+		for _, setFile := range moveToTrash(trashPath, flag.Args()) {
+			if err := os.Rename(setFile[0], setFile[1]); err != nil {
+				log.Println(err)
+			}
+		}
 	}
 }
