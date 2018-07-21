@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"mt/cmd"
 )
 
 func createTrash(trashPath string) error { // ゴミ箱が存在しないなら生成する。
