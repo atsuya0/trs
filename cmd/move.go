@@ -7,9 +7,11 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
-func moveToTrash(trashPath string, fileNames []string) [][]string { // ファイルをゴミ箱に移動させる
+func move(trashPath string, fileNames []string) [][]string { // ファイルをゴミ箱に移動させる
 	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
 	setFiles := make([][]string, 0)
 
@@ -28,4 +30,20 @@ func moveToTrash(trashPath string, fileNames []string) [][]string { // ファイ
 	}
 
 	return setFiles
+}
+
+func createMoveCmd(trashPath string) *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "move",
+		Short: "move files in the current directory to the trash",
+		Run: func(cmd *cobra.Command, args []string) {
+			for _, setFile := range move(trashPath, args) {
+				if err := os.Rename(setFile[0], setFile[1]); err != nil {
+					log.Println(err)
+				}
+			}
+		},
+	}
+
+	return cmd
 }

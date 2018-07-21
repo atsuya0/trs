@@ -3,10 +3,10 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
-	"syscall"
-	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // ゴミ箱に入っている、指定した一つのファイルを削除する。
@@ -28,25 +28,20 @@ func del(file string) bool {
 	}
 }
 
-func autoDel(path string) (files []string, err error) {
-	fileInfo, err := ioutil.ReadDir(path)
-	if err != nil {
-		return
+func createDeleteCmd(trashPath string) *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "delete",
+		Short: "delete a file in the trash",
+		Run: func(cmd *cobra.Command, args []string) {
+			file := args[0]
+
+			if del(file) {
+				if err := os.RemoveAll(trashPath + "/" + file); err != nil {
+					log.Fatalln(err)
+				}
+			}
+		},
 	}
 
-	now := time.Now()
-	oneMonthAgo := now.AddDate(0, -1, 0)
-
-	for _, info := range fileInfo {
-		internalStat, ok := info.Sys().(*syscall.Stat_t)
-		if !ok {
-			err = fmt.Errorf("fileInfo.Sys(): cast error")
-			return
-		}
-		if (internalStat.Ctim.Nano() - oneMonthAgo.UnixNano()) < 0 {
-			files = append(files, path+"/"+info.Name())
-		}
-	}
-
-	return
+	return cmd
 }
