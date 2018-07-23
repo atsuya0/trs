@@ -9,7 +9,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func currentDirNames() ([]string, error) { // カレントディレクトリのファイル・ディレクトリ名の一覧
+type array []string
+
+// ファイルの配列に、あるファイルが存在していのかどうか調べる。
+func (a *array) contains(file string) bool {
+	for _, v := range *a {
+		if file == v {
+			return true
+		}
+	}
+	return false
+}
+
+// カレントディレクトリのファイル・ディレクトリ名の一覧
+func currentDirNames() (array, error) {
 	var files []string
 
 	wd, err := os.Getwd()
@@ -35,16 +48,6 @@ func currentDirNames() ([]string, error) { // カレントディレクトリの�
 	return files, err
 }
 
-// ファイルの配列に、あるファイルが存在していのかどうか調べる。
-func contains(file string, files []string) bool {
-	for _, v := range files {
-		if file == v {
-			return true
-		}
-	}
-	return false
-}
-
 // ゴミ箱からファイルを取り出す
 func restore(trashPath string, trashFiles []string) ([][]string, error) {
 	setFiles := make([][]string, 0, len(trashFiles))
@@ -65,7 +68,7 @@ func restore(trashPath string, trashFiles []string) ([][]string, error) {
 			fileName[:strings.LastIndex(fileName, "_")] +
 				filepath.Ext(fileName)
 
-		if contains(newFilePath, files) {
+		if files.contains(newFilePath) {
 			log.Println("A file with the same name already exists.")
 			continue
 		}
