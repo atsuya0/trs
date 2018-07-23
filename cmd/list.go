@@ -36,7 +36,7 @@ func (f Files) Swap(i, j int) {
 
 // ゴミ箱の中のファイル一覧を表示
 func list(path string) (files []string, err error) {
-	files = make([]string, 0)
+	files = make([]string, 0, len(files))
 
 	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {

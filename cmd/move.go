@@ -13,7 +13,7 @@ import (
 
 func move(trashPath string, fileNames []string) [][]string { // ファイルをゴミ箱に移動させる
 	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
-	setFiles := make([][]string, 0)
+	setFiles := make([][]string, 0, len(fileNames))
 
 	for _, fileName := range fileNames {
 		if _, err := os.Stat(fileName); err != nil {

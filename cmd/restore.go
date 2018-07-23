@@ -47,7 +47,7 @@ func contains(file string, files []string) bool {
 
 // ゴミ箱からファイルを取り出す
 func restore(trashPath string, trashFiles []string) ([][]string, error) {
-	setFiles := make([][]string, 0)
+	setFiles := make([][]string, 0, len(trashFiles))
 
 	files, err := currentDirNames()
 	if err != nil {
