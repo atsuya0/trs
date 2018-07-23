@@ -36,7 +36,10 @@ func createRootCmd(trashPath string) *cobra.Command {
 }
 
 func Execute() {
-	trashPath := os.Getenv("HOME") + "/.Trash"
+	trashPath := os.Getenv("TRASH_PATH")
+	if trashPath == "" {
+		trashPath = os.Getenv("HOME") + "/.Trash"
+	}
 	if err := createTrash(trashPath); err != nil {
 		log.Fatalln(err)
 	}
