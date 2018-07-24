@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ゴミ箱に入っている、指定した一つのファイルを削除する。
 func del(file string) bool {
 	fmt.Printf("target: %s\n", file)
 	fmt.Println("'yes' or 'no'")

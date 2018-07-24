@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func move(trashPath string, fileNames []string) [][]string { // ファイルをゴミ箱に移動させる
+func move(trashPath string, fileNames []string) [][]string {
 	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
 	setFiles := make([][]string, 0, len(fileNames))
 
