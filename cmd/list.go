@@ -17,8 +17,6 @@ type Options struct {
 	reverse bool
 }
 
-var opt = &Options{}
-
 type Files []os.FileInfo
 
 func (f Files) Len() int {
@@ -35,28 +33,28 @@ func (f Files) Swap(i, j int) {
 }
 
 // ゴミ箱の中のファイル一覧を表示
-func list(path string) (files []string, err error) {
-	files = make([]string, 0, len(files))
+func list(options Options, path string) (files [][2]string, err error) {
+	files = make([][2]string, 0, len(files))
 
 	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {
 		return
 	}
 
-	if opt.reverse {
+	if options.reverse {
 		sort.Sort(sort.Reverse(Files(fileInfo)))
 	} else {
 		sort.Sort(Files(fileInfo))
 	}
 
 	const executable os.FileMode = 0111
-	const green = "\x1b[32m\x1b[1m%s"
-	const blue = "\x1b[34m\x1b[1m%s"
-	const cyan = "\x1b[36m\x1b[1m%s"
-	const white = "\x1b[37m\x1b[0m%s"
+	const green = "\x1b[32m\x1b[1m%s\x1b[39m\x1b[0m\n"
+	const blue = "\x1b[34m\x1b[1m%s\x1b[39m\x1b[0m\n"
+	const cyan = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m\n"
+	const white = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m\n"
 
 	now := time.Now()
-	daysAgo := now.AddDate(0, 0, -opt.days)
+	daysAgo := now.AddDate(0, 0, -options.days)
 
 	for _, info := range fileInfo {
 		internalStat, ok := info.Sys().(*syscall.Stat_t)
@@ -64,18 +62,19 @@ func list(path string) (files []string, err error) {
 			err = fmt.Errorf("fileInfo.Sys(): cast error")
 			return
 		}
-		if (internalStat.Ctim.Nano() - daysAgo.UnixNano()) < 0 {
+
+		if options.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
 			continue
 		}
 
 		if info.IsDir() {
-			files = append(files, fmt.Sprintf(blue, info.Name()))
+			files = append(files, [2]string{blue, info.Name()})
 		} else if info.Mode()&os.ModeSymlink != 0 {
-			files = append(files, fmt.Sprintf(cyan, info.Name()))
+			files = append(files, [2]string{cyan, info.Name()})
 		} else if info.Mode()&executable != 0 {
-			files = append(files, fmt.Sprintf(green, info.Name()))
+			files = append(files, [2]string{green, info.Name()})
 		} else {
-			files = append(files, fmt.Sprintf(white, info.Name()))
+			files = append(files, [2]string{white, info.Name()})
 		}
 	}
 
@@ -83,22 +82,23 @@ func list(path string) (files []string, err error) {
 }
 
 func createListCmd(trashPath string) *cobra.Command {
+	options := &Options{}
+
 	var cmd = &cobra.Command{
 		Use:   "list",
 		Short: "The list of the trash",
 		Run: func(cmd *cobra.Command, args []string) {
-			files, err := list(trashPath)
+			files, err := list(*options, trashPath)
 			if err != nil {
 				log.Fatalln(err)
 			}
 			for _, file := range files {
-				fmt.Println(file)
+				fmt.Printf(file[0], file[1])
 			}
 		},
 	}
-
-	cmd.Flags().IntVarP(&opt.days, "days", "d", 31, "How many days ago")
-	cmd.Flags().BoolVarP(&opt.reverse, "reverse", "r", false, "display in reverse order")
+	cmd.Flags().IntVarP(&options.days, "days", "d", 0, "How many days ago")
+	cmd.Flags().BoolVarP(&options.reverse, "reverse", "r", false, "display in reverse order")
 
 	return cmd
 }

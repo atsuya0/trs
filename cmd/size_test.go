@@ -6,7 +6,7 @@ import (
 )
 
 func TestSize(t *testing.T) {
-	const trashPath = "./test_data"
+	const trashPath = "./test_data/trash_dir"
 	const testSize = 15
 
 	sum, err := size(trashPath)
