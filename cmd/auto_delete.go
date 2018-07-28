@@ -54,7 +54,7 @@ func autoDel(path string) (files []string, err error) {
 func createAutoDeleteCmd(trashPath string) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "auto-delete",
-		Short: "delete files that passed one month after moving to the trash can",
+		Short: "Delete files that passed one month after moving to the trash can",
 		Run: func(cmd *cobra.Command, args []string) {
 			if files, err := autoDel(trashPath); err == nil {
 				for _, file := range files {

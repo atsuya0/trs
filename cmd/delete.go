@@ -30,7 +30,7 @@ func del(file string) bool {
 func createDeleteCmd(trashPath string) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "delete",
-		Short: "delete a file in the trash",
+		Short: "Delete a file in the trash",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				log.Fatalln("Required argument")

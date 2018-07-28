@@ -81,7 +81,7 @@ func restore(trashPath string, trashFiles []string) ([][]string, error) {
 func createRestoreCmd(trashPath string) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "restore",
-		Short: "move files in the trash to the current directory",
+		Short: "Move files in the trash to the current directory",
 		Run: func(cmd *cobra.Command, args []string) {
 			if setFiles, err := restore(trashPath, args); err == nil {
 				for _, setFile := range setFiles {

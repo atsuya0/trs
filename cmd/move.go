@@ -35,7 +35,7 @@ func move(trashPath string, fileNames []string) [][]string {
 func createMoveCmd(trashPath string) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "move",
-		Short: "move files in the current directory to the trash",
+		Short: "Move files in the current directory to the trash",
 		Run: func(cmd *cobra.Command, args []string) {
 			for _, setFile := range move(trashPath, args) {
 				if err := os.Rename(setFile[0], setFile[1]); err != nil {
