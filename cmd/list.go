@@ -48,10 +48,10 @@ func list(options Options, path string) (files [][2]string, err error) {
 	}
 
 	const executable os.FileMode = 0111
-	const green = "\x1b[32m\x1b[1m%s\x1b[39m\x1b[0m\n"
-	const blue = "\x1b[34m\x1b[1m%s\x1b[39m\x1b[0m\n"
-	const cyan = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m\n"
-	const white = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m\n"
+	const green = "\x1b[32m\x1b[1m%s\x1b[39m\x1b[0m"
+	const blue = "\x1b[34m\x1b[1m%s\x1b[39m\x1b[0m"
+	const cyan = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m"
+	const white = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m"
 
 	now := time.Now()
 	daysAgo := now.AddDate(0, 0, -options.days)
