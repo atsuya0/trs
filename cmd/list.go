@@ -17,6 +17,11 @@ type Options struct {
 	reverse bool
 }
 
+type ExFileInfo struct {
+	info  os.FileInfo
+	color string
+}
+
 type Files []os.FileInfo
 
 func (f Files) Len() int {
@@ -33,14 +38,13 @@ func (f Files) Swap(i, j int) {
 }
 
 // ゴミ箱の中のファイル一覧を表示
-func list(options Options, path string) (files [][2]string, err error) {
-	files = make([][2]string, 0, len(files))
+func list(options Options, path string) (files []ExFileInfo, err error) {
+	files = make([]ExFileInfo, 0, len(files))
 
 	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {
 		return
 	}
-
 	if options.reverse {
 		sort.Sort(sort.Reverse(Files(fileInfo)))
 	} else {
@@ -48,10 +52,10 @@ func list(options Options, path string) (files [][2]string, err error) {
 	}
 
 	const executable os.FileMode = 0111
-	const green = "\x1b[32m\x1b[1m%s\x1b[39m\x1b[0m"
-	const blue = "\x1b[34m\x1b[1m%s\x1b[39m\x1b[0m"
-	const cyan = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m"
-	const white = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m"
+	const green = "\x1b[32m\x1b[1m%s\x1b[39m\x1b[0m\n"
+	const blue = "\x1b[34m\x1b[1m%s\x1b[39m\x1b[0m\n"
+	const cyan = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m\n"
+	const white = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m\n"
 
 	now := time.Now()
 	daysAgo := now.AddDate(0, 0, -options.days)
@@ -66,15 +70,14 @@ func list(options Options, path string) (files [][2]string, err error) {
 		if options.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
 			continue
 		}
-
 		if info.IsDir() {
-			files = append(files, [2]string{blue, info.Name()})
+			files = append(files, ExFileInfo{info: info, color: blue})
 		} else if info.Mode()&os.ModeSymlink != 0 {
-			files = append(files, [2]string{cyan, info.Name()})
+			files = append(files, ExFileInfo{info: info, color: cyan})
 		} else if info.Mode()&executable != 0 {
-			files = append(files, [2]string{green, info.Name()})
+			files = append(files, ExFileInfo{info: info, color: green})
 		} else {
-			files = append(files, [2]string{white, info.Name()})
+			files = append(files, ExFileInfo{info: info, color: white})
 		}
 	}
 
@@ -93,7 +96,7 @@ func createListCmd(trashPath string) *cobra.Command {
 				log.Fatalln(err)
 			}
 			for _, file := range files {
-				fmt.Printf(file[0], file[1])
+				fmt.Printf(file.color, file.info.Name())
 			}
 		},
 	}

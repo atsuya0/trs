@@ -1,7 +1,7 @@
 package main
 
 import (
-	"mt/cmd"
+	"cli/mt/cmd"
 )
 
 func main() {
