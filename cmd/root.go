@@ -21,7 +21,7 @@ func createTrash(trashPath string) error {
 
 func createRootCmd(trashPath string) *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "mt",
+		Use:   "trash",
 		Short: "move files to trash",
 	}
 
