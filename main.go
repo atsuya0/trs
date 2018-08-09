@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cli/mt/cmd"
+	"github.com/tayusa/trash/cmd"
 )
 
 func main() {
