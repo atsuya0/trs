@@ -49,16 +49,19 @@ func currentDirNames() (array, error) {
 }
 
 // ゴミ箱からファイルを取り出す
-func restore(trashPath string, trashFiles []string) ([][]string, error) {
-	setFiles := make([][]string, 0, len(trashFiles))
+func restore(_ *cobra.Command, args []string) error {
+	trashPath, err := getSrc()
+	if err != nil {
+		return err
+	}
 
 	files, err := currentDirNames()
 	if err != nil {
-		return setFiles, err
+		return err
 	}
 
-	for _, fileName := range trashFiles {
-		filePath := trashPath + "/" + fileName
+	for _, fileName := range args {
+		filePath := filepath.Join(trashPath, fileName)
 		if _, err := os.Stat(filePath); err != nil {
 			log.Println(err)
 			continue
@@ -72,27 +75,20 @@ func restore(trashPath string, trashFiles []string) ([][]string, error) {
 			log.Println("A file with the same name already exists.")
 			continue
 		}
-		setFiles = append(setFiles, []string{filePath, newFilePath})
+
+		if err := os.Rename(filePath, newFilePath); err != nil {
+			log.Println(err)
+		}
 	}
 
-	return setFiles, err
+	return nil
 }
 
-func createRestoreCmd(trashPath string) *cobra.Command {
+func cmdRestore() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "restore",
 		Short: "Move files in the trash to the current directory",
-		Run: func(cmd *cobra.Command, args []string) {
-			if setFiles, err := restore(trashPath, args); err == nil {
-				for _, setFile := range setFiles {
-					if err := os.Rename(setFile[0], setFile[1]); err != nil {
-						log.Println(err)
-					}
-				}
-			} else {
-				log.Fatalln(err)
-			}
-		},
+		RunE:  restore,
 	}
 
 	return cmd

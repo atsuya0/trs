@@ -11,11 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func move(trashPath string, fileNames []string) [][]string {
-	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
-	setFiles := make([][]string, 0, len(fileNames))
+func move(_ *cobra.Command, args []string) error {
+	trashPath, err := getSrc()
+	if err != nil {
+		return err
+	}
 
-	for _, fileName := range fileNames {
+	prefix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
+
+	for _, fileName := range args {
 		if _, err := os.Stat(fileName); err != nil {
 			log.Println(err)
 			continue
@@ -26,23 +30,19 @@ func move(trashPath string, fileNames []string) [][]string {
 			prefix +
 			filepath.Ext(fileName)
 
-		setFiles = append(setFiles, []string{fileName, newFileName})
+		if err := os.Rename(fileName, newFileName); err != nil {
+			log.Println(err)
+		}
 	}
 
-	return setFiles
+	return nil
 }
 
-func createMoveCmd(trashPath string) *cobra.Command {
+func cmdMove() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "move",
 		Short: "Move files in the current directory to the trash",
-		Run: func(cmd *cobra.Command, args []string) {
-			for _, setFile := range move(trashPath, args) {
-				if err := os.Rename(setFile[0], setFile[1]); err != nil {
-					log.Println(err)
-				}
-			}
-		},
+		RunE:  move,
 	}
 
 	return cmd

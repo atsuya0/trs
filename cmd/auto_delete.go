@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"syscall"
 	"time"
@@ -26,46 +26,42 @@ func loadStoragePeriod() (int64, error) {
 	return time.Now().AddDate(0, 0, -period).UnixNano(), nil
 }
 
-func autoDel(path string) (files []string, err error) {
+func autoDel(_ *cobra.Command, _ []string) error {
+	path, err := getSrc()
+	if err != nil {
+		return err
+	}
+
 	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {
-		return
+		return err
 	}
 
 	period, err := loadStoragePeriod()
 	if err != nil {
-		return
+		return err
 	}
 
 	for _, info := range fileInfo {
 		internalStat, ok := info.Sys().(*syscall.Stat_t)
 		if !ok {
-			err = fmt.Errorf("fileInfo.Sys(): cast error")
-			return
+			return fmt.Errorf("fileInfo.Sys(): cast error")
 		}
 		if period > internalStat.Ctim.Nano() {
-			files = append(files, path+"/"+info.Name())
+			if err := os.RemoveAll(filepath.Join(path, info.Name())); err != nil {
+				return err
+			}
 		}
 	}
 
-	return
+	return nil
 }
 
-func createAutoDeleteCmd(trashPath string) *cobra.Command {
+func cmdAutoDelete() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "auto-delete",
 		Short: "Delete files that passed one month after moving to the trash can",
-		Run: func(cmd *cobra.Command, args []string) {
-			if files, err := autoDel(trashPath); err == nil {
-				for _, file := range files {
-					if err := os.RemoveAll(file); err != nil {
-						log.Fatalln(err)
-					}
-				}
-			} else {
-				log.Fatalln(err)
-			}
-		},
+		RunE:  autoDel,
 	}
 
 	return cmd

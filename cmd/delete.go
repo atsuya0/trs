@@ -3,14 +3,14 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
 
-func del(file string) bool {
-	fmt.Printf("target: %s\n", file)
+func del(_ *cobra.Command, args []string) error {
+	fmt.Printf("target: %s\n", args[0])
 	fmt.Println("'yes' or 'no'")
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -21,28 +21,24 @@ func del(file string) bool {
 	}
 
 	if scanner.Text() == "yes" {
-		return true
-	} else {
-		return false
+		path, err := getSrc()
+		if err != nil {
+			return err
+		}
+		if err := os.RemoveAll(filepath.Join(path, args[0])); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-func createDeleteCmd(trashPath string) *cobra.Command {
+func cmdDelete() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "delete",
 		Short: "Delete a file in the trash",
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) == 0 {
-				log.Fatalln("Required argument")
-			}
-			file := args[0]
-
-			if del(file) {
-				if err := os.RemoveAll(trashPath + "/" + file); err != nil {
-					log.Fatalln(err)
-				}
-			}
-		},
+		Args:  cobra.MinimumNArgs(1),
+		RunE:  del,
 	}
 
 	return cmd

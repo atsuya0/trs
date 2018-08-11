@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"sort"
 	"syscall"
@@ -38,13 +38,17 @@ func (f Files) Swap(i, j int) {
 }
 
 // ゴミ箱の中のファイル一覧を表示
-func list(options Options, path string) (files []ExFileInfo, err error) {
-	files = make([]ExFileInfo, 0, len(files))
+func list(options *Options, out io.Writer) error {
+	path, err := getSrc()
+	if err != nil {
+		return err
+	}
 
 	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {
-		return
+		return err
 	}
+
 	if options.reverse {
 		sort.Sort(sort.Reverse(Files(fileInfo)))
 	} else {
@@ -57,47 +61,39 @@ func list(options Options, path string) (files []ExFileInfo, err error) {
 	const cyan = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m\n"
 	const white = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m\n"
 
-	now := time.Now()
-	daysAgo := now.AddDate(0, 0, -options.days)
+	daysAgo := time.Now().AddDate(0, 0, -options.days)
 
 	for _, info := range fileInfo {
 		internalStat, ok := info.Sys().(*syscall.Stat_t)
 		if !ok {
-			err = fmt.Errorf("fileInfo.Sys(): cast error")
-			return
+			return fmt.Errorf("fileInfo.Sys(): cast error")
 		}
 
 		if options.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
 			continue
 		}
 		if info.IsDir() {
-			files = append(files, ExFileInfo{info: info, color: blue})
+			fmt.Fprintf(out, blue, info.Name())
 		} else if info.Mode()&os.ModeSymlink != 0 {
-			files = append(files, ExFileInfo{info: info, color: cyan})
+			fmt.Fprintf(out, cyan, info.Name())
 		} else if info.Mode()&executable != 0 {
-			files = append(files, ExFileInfo{info: info, color: green})
+			fmt.Fprintf(out, green, info.Name())
 		} else {
-			files = append(files, ExFileInfo{info: info, color: white})
+			fmt.Fprintf(out, white, info.Name())
 		}
 	}
 
-	return
+	return nil
 }
 
-func createListCmd(trashPath string) *cobra.Command {
+func cmdList() *cobra.Command {
 	options := &Options{}
 
 	var cmd = &cobra.Command{
 		Use:   "list",
 		Short: "The list of the trash",
-		Run: func(cmd *cobra.Command, args []string) {
-			files, err := list(*options, trashPath)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			for _, file := range files {
-				fmt.Printf(file.color, file.info.Name())
-			}
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return list(options, os.Stdout)
 		},
 	}
 	cmd.Flags().IntVarP(&options.days, "days", "d", 0, "How many days ago")
