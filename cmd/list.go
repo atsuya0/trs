@@ -17,11 +17,6 @@ type Options struct {
 	reverse bool
 }
 
-type ExFileInfo struct {
-	info  os.FileInfo
-	color string
-}
-
 type Files []os.FileInfo
 
 func (f Files) Len() int {
