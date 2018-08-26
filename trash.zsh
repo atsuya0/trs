@@ -1,10 +1,10 @@
 # Cooperation with fzf.
 
-function mt() {
+function trash() {
   typeset -r trash="${HOME}/.Trash"
   local fzf_option="--preview-window='right:hidden' --bind='ctrl-v:toggle-preview'"
 
-  ! type fzf > /dev/null 2>&1 && [[ -e ${GOPATH}/bin/mt ]] && ${GOPATH}/bin/mt $@
+  ! type fzf > /dev/null 2>&1 && [[ -e ${GOPATH}/bin/trash ]] && ${GOPATH}/bin/trash $@
 
   case $1 in
     'move')
@@ -29,5 +29,5 @@ function mt() {
     ;;
   esac
 
-  [[ -e ${GOPATH}/bin/mt ]] && ${GOPATH}/bin/mt $@
+  [[ -e ${GOPATH}/bin/trash ]] && ${GOPATH}/bin/trash $@
 }

@@ -1,4 +1,4 @@
-function _mt() {
+function _trash() {
   typeset -r trash="${HOME}/.Trash"
   local ret=1
 
@@ -51,4 +51,4 @@ function _mt() {
   return ret
 }
 
-compdef _mt mt
+compdef _trash trash
