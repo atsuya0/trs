@@ -2,44 +2,71 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
 
-func size(_ *cobra.Command, _ []string) error {
-	var sum int64 = 0
+var (
+	units = [6]string{"B", "kB", "MB", "GB", "TB", "PB"}
+)
 
-	trashPath, err := getSrc()
-	if err != nil {
-		return err
-	}
+func getSize(trashPath string) (int64, error) {
+	var size int64 = 0
 
-	err = filepath.Walk(trashPath, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(trashPath, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
 		if !info.IsDir() {
-			sum += info.Size()
+			size += info.Size()
 		}
 
 		return nil
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
+	return size, nil
+}
 
-	fmt.Printf("%d MB", sum/(1024*1024))
-	return nil
+func convertUnits(size float64, cnt int) string {
+	result := math.Pow(1024, float64(cnt))
+	if size < result*1024 {
+		if cnt >= len(units) {
+			return fmt.Sprintf("%0.1f %s", size, units[0])
+		}
+		return fmt.Sprintf("%0.1f %s", size/result, units[cnt])
+	}
+	return convertUnits(size, cnt+1)
+}
+
+func printSize(size int64) {
+	fmt.Println(convertUnits(float64(size), 0))
 }
 
 func cmdSize() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "size",
 		Short: "The size of the trash directory",
-		RunE:  size,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			trashPath, err := getSrc()
+			if err != nil {
+				return err
+			}
+
+			size, err := getSize(trashPath)
+			if err != nil {
+				return err
+			}
+
+			printSize(size)
+
+			return nil
+		},
 	}
 
 	return cmd
