@@ -27,10 +27,7 @@ func loadStoragePeriod() (int64, error) {
 }
 
 func autoDel(_ *cobra.Command, _ []string) error {
-	path, err := getSrc()
-	if err != nil {
-		return err
-	}
+	path := getTrashPath()
 
 	fileInfo, err := ioutil.ReadDir(path)
 	if err != nil {

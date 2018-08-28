@@ -21,11 +21,7 @@ func del(_ *cobra.Command, args []string) error {
 	}
 
 	if scanner.Text() == "yes" {
-		path, err := getSrc()
-		if err != nil {
-			return err
-		}
-		if err := os.RemoveAll(filepath.Join(path, args[0])); err != nil {
+		if err := os.RemoveAll(filepath.Join(getTrashPath(), args[0])); err != nil {
 			return err
 		}
 	}

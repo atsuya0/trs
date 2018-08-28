@@ -1,30 +1,29 @@
 package cmd
 
 import (
+	"log"
 	"os"
 	"os/user"
 	"path/filepath"
 )
 
-func getSrc() (string, error) {
+func getTrashPath() string {
 	path := os.Getenv("TRASH_PATH")
 
 	if path != "" {
-		return path, nil
+		return path
 	} else {
 		user, err := user.Current()
 		if err != nil {
-			return "", err
+			log.Fatalln(err)
+			return ""
 		}
-		return filepath.Join(user.HomeDir, ".Trash"), nil
+		return filepath.Join(user.HomeDir, ".Trash")
 	}
 }
 
 func createTrash() error {
-	trashPath, err := getSrc()
-	if err != nil {
-		return err
-	}
+	trashPath := getTrashPath()
 
 	if _, err := os.Stat(trashPath); err == nil {
 		return nil
