@@ -1,19 +1,21 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tayusa/selector"
 )
 
-type array []string
+type fileNames []string
 
 // ファイルの配列に、あるファイルが存在していのかどうか調べる。
-func (a *array) contains(file string) bool {
-	for _, v := range *a {
+func (f fileNames) contains(file string) bool {
+	for _, v := range f {
 		if file == v {
 			return true
 		}
@@ -21,64 +23,97 @@ func (a *array) contains(file string) bool {
 	return false
 }
 
-// カレントディレクトリのファイル・ディレクトリ名の一覧
-func currentDirNames() (array, error) {
-	var files []string
-
-	wd, err := os.Getwd()
+func getFileNames(path string) ([]string, error) {
+	fd, err := os.Open(path)
 	if err != nil {
 		log.Println(err)
-		return files, err
+		return []string{}, err
 	}
 
-	file, err := os.Open(wd)
-	defer file.Close()
+	defer func() {
+		if err = fd.Close(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
 
+	files, err := fd.Readdirnames(0)
 	if err != nil {
 		log.Println(err)
-		return files, err
-	}
-
-	files, err = file.Readdirnames(0)
-	if err != nil {
-		log.Println(err)
-		return files, err
+		return []string{}, err
 	}
 
 	return files, err
 }
 
+// A file of the same name exists in the current directory.
+func fileExistsCurrentDir(name string) (bool, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return true, err
+	}
+	filesInCurrentDir, err := getFileNames(wd)
+	if err != nil {
+		return true, err
+	}
+	if fileNames(filesInCurrentDir).contains(name) {
+		return true, nil
+	}
+	return false, nil
+}
+
+func removeAffix(org string) string {
+	return org[:strings.LastIndex(org, "_")] + filepath.Ext(org)
+}
+
+func selectFile(path string) (string, error) {
+	files, err := getFileNames(path)
+	if err != nil {
+		return "", err
+	}
+	fileSelector := selector.NewSelector(files)
+	return fileSelector.Run(), nil
+}
+
+func selectTarget() (string, string, error) {
+	trashPath := getTrashPath()
+
+	date, err := selectFile(trashPath)
+	if err != nil {
+		return "", "", err
+	} else if date == "" {
+		return "", "", fmt.Errorf("Cannot get date")
+	}
+
+	fileName, err := selectFile(filepath.Join(trashPath, date))
+	if err != nil {
+		return "", "", err
+	} else if fileName == "" {
+		return "", "", fmt.Errorf("Cannot get file name")
+	}
+
+	filePath := filepath.Join(trashPath, date, fileName)
+	if _, err := os.Stat(filePath); err != nil {
+		return "", "", err
+	}
+
+	return filePath, removeAffix(fileName), nil
+}
+
 // ゴミ箱からファイルを取り出す
-func restore(_ *cobra.Command, args []string) error {
-	trashPath, err := getSrc()
+func restore(_ *cobra.Command, _ []string) error {
+	filePath, newFilePath, err := selectTarget()
 	if err != nil {
 		return err
 	}
 
-	files, err := currentDirNames()
-	if err != nil {
+	if exists, err := fileExistsCurrentDir(newFilePath); err != nil {
 		return err
+	} else if exists {
+		return fmt.Errorf("A file with the same name already exists.")
 	}
 
-	for _, fileName := range args {
-		filePath := filepath.Join(trashPath, fileName)
-		if _, err := os.Stat(filePath); err != nil {
-			log.Println(err)
-			continue
-		}
-
-		newFilePath :=
-			fileName[:strings.LastIndex(fileName, "_")] +
-				filepath.Ext(fileName)
-
-		if files.contains(newFilePath) {
-			log.Println("A file with the same name already exists.")
-			continue
-		}
-
-		if err := os.Rename(filePath, newFilePath); err != nil {
-			log.Println(err)
-		}
+	if err := os.Rename(filePath, newFilePath); err != nil {
+		return err
 	}
 
 	return nil
