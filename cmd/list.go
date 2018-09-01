@@ -15,11 +15,11 @@ import (
 
 const (
 	executable os.FileMode = 0111
-	header                 = "\x1b[4;30;47m%s\x1b[0m\n"
-	green                  = "\x1b[32m\x1b[1m%s\x1b[39m\x1b[0m\n"
-	blue                   = "\x1b[34m\x1b[1m%s\x1b[39m\x1b[0m\n"
-	cyan                   = "\x1b[36m\x1b[1m%s\x1b[39m\x1b[0m\n"
-	white                  = "\x1b[37m\x1b[0m%s\x1b[39m\x1b[0m\n"
+	header                 = "\x1b[4;30;47m%s\x1b[m\n"
+	green                  = "\x1b[1;32m%s\x1b[m\n"
+	blue                   = "\x1b[1;34m%s\x1b[m\n"
+	cyan                   = "\x1b[1;36m%s\x1b[m\n"
+	white                  = "\x1b[0;37m%s\x1b[m\n"
 )
 
 type Options struct {
