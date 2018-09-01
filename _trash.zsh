@@ -1,5 +1,5 @@
 function _trash() {
-  typeset -r trash="${HOME}/.Trash"
+  [[ -n ${TRASH_PATH} ]] && typeset -r trash=${TRASH_PATH} || typeset -r trash="${HOME}/.Trash"
   local ret=1
 
   function sub_commands() {
@@ -29,9 +29,6 @@ function _trash() {
           _files
         ;;
         (restore)
-          _values \
-            'files in trash' \
-            $(command ls -Ar ${trash})
         ;;
         (list)
           _arguments \
@@ -41,14 +38,11 @@ function _trash() {
         (size)
         ;;
         (delete)
-          _values \
-            'files in trash' \
-            $(command ls -Ar ${trash})
         ;;
       esac
+    ;;
   esac
 
   return ret
 }
-
 compdef _trash trash
