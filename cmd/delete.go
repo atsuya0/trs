@@ -29,11 +29,11 @@ func confirmDel(file string) bool {
 
 func del(_ *cobra.Command, args []string) error {
 	root := getTrashPath()
-	date, err := selectFile(root)
+	date, err := chooseFile(root)
 	if err != nil {
 		return err
 	}
-	file, err := selectFile(filepath.Join(root, date))
+	file, err := chooseFile(filepath.Join(root, date))
 	if err != nil {
 		return err
 	}

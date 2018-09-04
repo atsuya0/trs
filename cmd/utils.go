@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/tayusa/selector"
+	"github.com/tayusa/go-choice"
 )
 
 func getTrashPath() string {
@@ -62,12 +62,12 @@ func getFileNames(path string) ([]string, error) {
 	return files, err
 }
 
-// Select one from files and directories.
-func selectFile(path string) (string, error) {
+// Choose one from files and directories.
+func chooseFile(path string) (string, error) {
 	files, err := getFileNames(path)
 	if err != nil {
 		return "", err
 	}
-	fileSelector := selector.NewSelector(files)
-	return fileSelector.Run(), nil
+	fileChooser := choice.NewChooser(files)
+	return fileChooser.Run(), nil
 }

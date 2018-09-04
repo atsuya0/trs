@@ -41,18 +41,18 @@ func removeAffix(org string) string {
 	return org[:strings.LastIndex(org, "_")] + filepath.Ext(org)
 }
 
-// Select the file to restore.
-func selectTarget() (string, string, error) {
+// Choose the file to restore.
+func chooseTarget() (string, string, error) {
 	trashPath := getTrashPath()
 
-	date, err := selectFile(trashPath)
+	date, err := chooseFile(trashPath)
 	if err != nil {
 		return "", "", err
 	} else if date == "" {
 		return "", "", fmt.Errorf("Cannot get date")
 	}
 
-	fileName, err := selectFile(filepath.Join(trashPath, date))
+	fileName, err := chooseFile(filepath.Join(trashPath, date))
 	if err != nil {
 		return "", "", err
 	} else if fileName == "" {
@@ -67,9 +67,9 @@ func selectTarget() (string, string, error) {
 	return filePath, removeAffix(fileName), nil
 }
 
-// Restore selected file or directory.
+// Restore chose file or directory.
 func restore(_ *cobra.Command, _ []string) error {
-	filePath, newFilePath, err := selectTarget()
+	filePath, newFilePath, err := chooseTarget()
 	if err != nil {
 		return err
 	}
