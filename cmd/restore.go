@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tayusa/selector"
 )
 
 type fileNames []string
@@ -20,29 +18,6 @@ func (f fileNames) contains(file string) bool {
 		}
 	}
 	return false
-}
-
-// Fetch files and directories from the specified path.
-func getFileNames(path string) ([]string, error) {
-	fd, err := os.Open(path)
-	if err != nil {
-		log.Println(err)
-		return []string{}, err
-	}
-
-	defer func() {
-		if err = fd.Close(); err != nil {
-			log.Fatalln(err)
-		}
-	}()
-
-	files, err := fd.Readdirnames(0)
-	if err != nil {
-		log.Println(err)
-		return []string{}, err
-	}
-
-	return files, err
 }
 
 // A file of the same name exists in the current directory.
@@ -64,16 +39,6 @@ func fileExistsCurrentDir(name string) (bool, error) {
 // Remove a character string what given when moving to the trash can.
 func removeAffix(org string) string {
 	return org[:strings.LastIndex(org, "_")] + filepath.Ext(org)
-}
-
-// Select one from files and directories.
-func selectFile(path string) (string, error) {
-	files, err := getFileNames(path)
-	if err != nil {
-		return "", err
-	}
-	fileSelector := selector.NewSelector(files)
-	return fileSelector.Run(), nil
 }
 
 // Select the file to restore.
