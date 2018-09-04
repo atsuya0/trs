@@ -1,23 +1,20 @@
 package cmd
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
-	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
 )
 
 func loadStoragePeriod() (int64, error) {
-	const defaultPeriod = -30
+	const defaultPeriod = 30
 
 	strPeriod := os.Getenv("STORAGE_PERIOD_OF_THE_TRASH")
 	if strPeriod == "" {
-		return time.Now().AddDate(0, 0, defaultPeriod).UnixNano(), nil
+		return time.Now().AddDate(0, 0, -defaultPeriod).UnixNano(), nil
 	}
 	period, err := strconv.Atoi(strPeriod)
 	if err != nil {
@@ -29,7 +26,7 @@ func loadStoragePeriod() (int64, error) {
 func autoDel(_ *cobra.Command, _ []string) error {
 	path := getTrashPath()
 
-	fileInfo, err := ioutil.ReadDir(path)
+	dirs, err := getFileNames(path)
 	if err != nil {
 		return err
 	}
@@ -39,13 +36,13 @@ func autoDel(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	for _, info := range fileInfo {
-		internalStat, ok := info.Sys().(*syscall.Stat_t)
-		if !ok {
-			return fmt.Errorf("fileInfo.Sys(): cast error")
+	for _, dir := range dirs {
+		date, err := time.Parse("2006-01-02", dir)
+		if err != nil {
+			return err
 		}
-		if period > internalStat.Ctim.Nano() {
-			if err := os.RemoveAll(filepath.Join(path, info.Name())); err != nil {
+		if date.UnixNano() < period {
+			if err := os.RemoveAll(filepath.Join(path, dir)); err != nil {
 				return err
 			}
 		}
