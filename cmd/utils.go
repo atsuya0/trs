@@ -22,6 +22,7 @@ func getTrashPath() string {
 	}
 }
 
+// Create a directory as a trash can.
 func createTrash() error {
 	trashPath := getTrashPath()
 

@@ -13,7 +13,6 @@ import (
 
 type fileNames []string
 
-// ファイルの配列に、あるファイルが存在していのかどうか調べる。
 func (f fileNames) contains(file string) bool {
 	for _, v := range f {
 		if file == v {
@@ -23,6 +22,7 @@ func (f fileNames) contains(file string) bool {
 	return false
 }
 
+// Fetch files and directories from the specified path.
 func getFileNames(path string) ([]string, error) {
 	fd, err := os.Open(path)
 	if err != nil {
@@ -61,10 +61,12 @@ func fileExistsCurrentDir(name string) (bool, error) {
 	return false, nil
 }
 
+// Remove a character string what given when moving to the trash can.
 func removeAffix(org string) string {
 	return org[:strings.LastIndex(org, "_")] + filepath.Ext(org)
 }
 
+// Select one from files and directories.
 func selectFile(path string) (string, error) {
 	files, err := getFileNames(path)
 	if err != nil {
@@ -74,6 +76,7 @@ func selectFile(path string) (string, error) {
 	return fileSelector.Run(), nil
 }
 
+// Select the file to restore.
 func selectTarget() (string, string, error) {
 	trashPath := getTrashPath()
 
@@ -99,7 +102,7 @@ func selectTarget() (string, string, error) {
 	return filePath, removeAffix(fileName), nil
 }
 
-// ゴミ箱からファイルを取り出す
+// Restore selected file or directory.
 func restore(_ *cobra.Command, _ []string) error {
 	filePath, newFilePath, err := selectTarget()
 	if err != nil {
