@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -24,6 +27,7 @@ const (
 
 type Options struct {
 	days    int
+	size    string
 	reverse bool
 }
 
@@ -42,7 +46,21 @@ func (d Dirs) Swap(i, j int) {
 	d[i], d[j] = d[j], d[i]
 }
 
-func printFiles(out io.Writer, path string) error {
+func convertSymbolsToNumbers(size string) int64 {
+	for i, unit := range units {
+		idx := strings.LastIndex(size, unit)
+		if 0 < idx {
+			num, err := strconv.Atoi(string([]rune(size)[:idx]))
+			if err != nil {
+				continue
+			}
+			return int64(num) * int64(math.Pow(1024, float64(i)))
+		}
+	}
+	return 0
+}
+
+func printFiles(out io.Writer, path string, size int64) error {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return err
@@ -51,6 +69,9 @@ func printFiles(out io.Writer, path string) error {
 	fmt.Fprintf(out, header, filepath.Base(path))
 
 	for _, file := range files {
+		if file.Size() < size {
+			continue
+		}
 		if file.IsDir() {
 			fmt.Fprintf(out, blue, file.Name())
 		} else if file.Mode()&os.ModeSymlink != 0 {
@@ -91,8 +112,8 @@ func list(options *Options) error {
 			continue
 		}
 
-		if err =
-			printFiles(os.Stdout, filepath.Join(trashPath, dir.Name())); err != nil {
+		if err = printFiles(os.Stdout, filepath.Join(trashPath, dir.Name()),
+			convertSymbolsToNumbers(options.size)); err != nil {
 			return err
 		}
 	}
@@ -110,8 +131,16 @@ func cmdList() *cobra.Command {
 			return list(options)
 		},
 	}
-	cmd.Flags().IntVarP(&options.days, "days", "d", 0, "How many days ago")
-	cmd.Flags().BoolVarP(&options.reverse, "reverse", "r", false, "display in reverse order")
+	cmd.Flags().IntVarP(
+		&options.days, "days", "d", 0,
+		`Display files that are not past [n] days
+		since they were discarded in the trash can.`)
+	cmd.Flags().StringVarP(
+		&options.size, "size", "s", "0B",
+		"Display files with size greater than [n].")
+	cmd.Flags().BoolVarP(
+		&options.reverse, "reverse", "r", false,
+		"display in reverse order")
 
 	return cmd
 }
