@@ -15,7 +15,7 @@ import (
 
 const (
 	executable os.FileMode = 0111
-	header                 = "\x1b[4;30;47m%s\x1b[m\n"
+	header                 = "\x1b[7;39;49m%s\x1b[m\n"
 	green                  = "\x1b[1;32m%s\x1b[m\n"
 	blue                   = "\x1b[1;34m%s\x1b[m\n"
 	cyan                   = "\x1b[1;36m%s\x1b[m\n"
