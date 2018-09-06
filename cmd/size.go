@@ -33,7 +33,7 @@ func getSize(trashPath string) (int64, error) {
 	return size, nil
 }
 
-func convertUnits(size float64, cnt int) string {
+func convertNumbersToSymbols(size float64, cnt int) string {
 	result := math.Pow(1024, float64(cnt))
 	if size < result*1024 {
 		if cnt >= len(units) {
@@ -41,11 +41,11 @@ func convertUnits(size float64, cnt int) string {
 		}
 		return fmt.Sprintf("%0.1f %s", size/result, units[cnt])
 	}
-	return convertUnits(size, cnt+1)
+	return convertNumbersToSymbols(size, cnt+1)
 }
 
 func printSize(size int64) {
-	fmt.Println(convertUnits(float64(size), 0))
+	fmt.Println(convertNumbersToSymbols(float64(size), 0))
 }
 
 func cmdSize() *cobra.Command {
