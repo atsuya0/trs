@@ -32,7 +32,8 @@ function _trash() {
         ;;
         (list)
           _arguments \
-            '(-d --days)'{-d,--days}'[How many days ago]' \
+            '(-d --days)'{-d,--days}'[Display files that are not past (n) days since they were discarded in the trash can.]' \
+            '(-s --size)'{-s,--size}'[Display files with size greater than (n).]' \
             '(-r --reverse)'{-r,--reverse}'[display in reverse order]'
         ;;
         (size)
