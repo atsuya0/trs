@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,14 +50,16 @@ func chooseTarget() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	} else if date == "" {
-		return "", "", fmt.Errorf("Cannot get date")
+		log.Fatalln("Cannot get date")
+		return "", "", nil
 	}
 
 	fileName, err := chooseFile(filepath.Join(trashPath, date))
 	if err != nil {
 		return "", "", err
 	} else if fileName == "" {
-		return "", "", fmt.Errorf("Cannot get file name")
+		log.Fatalln("Cannot get file name")
+		return "", "", nil
 	}
 
 	filePath := filepath.Join(trashPath, date, fileName)
