@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"sort"
 
 	"github.com/tayusa/go-choice"
 )
@@ -58,6 +59,7 @@ func getFileNames(path string) ([]string, error) {
 		log.Println(err)
 		return []string{}, err
 	}
+	sort.Sort(sort.Reverse(sort.StringSlice(files)))
 
 	return files, err
 }
