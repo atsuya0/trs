@@ -11,18 +11,15 @@ import (
 )
 
 func getTrashPath() string {
-	path := os.Getenv("TRASH_PATH")
-
-	if path != "" {
+	if path := os.Getenv("TRASH_PATH"); path != "" {
 		return path
-	} else {
-		user, err := user.Current()
-		if err != nil {
-			log.Fatalln(err)
-			return ""
-		}
-		return filepath.Join(user.HomeDir, ".Trash")
 	}
+	user, err := user.Current()
+	if err != nil {
+		log.Fatalln(err)
+		return ""
+	}
+	return filepath.Join(user.HomeDir, ".Trash")
 }
 
 // Create a directory as a trash can.
