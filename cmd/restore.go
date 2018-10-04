@@ -39,7 +39,7 @@ func fileExistsCurrentDir(name string) (bool, error) {
 
 // Remove a character string what given when moving to the trash can.
 func removeAffix(org string) string {
-	return org[:strings.LastIndex(org, "_")] + filepath.Ext(org)
+	return org[:strings.LastIndex(org, "_")] + getExt(org)
 }
 
 // Choose the file to restore.

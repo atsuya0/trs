@@ -13,14 +13,14 @@ import (
 )
 
 func removeExt(fileName string) string {
-	return path.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))])
+	return path.Base(fileName[:len(fileName)-len(getExt(fileName))])
 }
 
 func addAffix(fileName string, affix string, destination string) string {
-	return destination + "/" +
-		strings.Replace(removeExt(fileName), " ", "", -1) +
-		affix +
-		filepath.Ext(fileName)
+	return filepath.Join(destination,
+		strings.Replace(removeExt(fileName), " ", "", -1)+
+			affix+
+			getExt(fileName))
 }
 
 func getDestination(trashPath string) (string, error) {

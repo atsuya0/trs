@@ -70,3 +70,13 @@ func chooseFile(path string) (string, error) {
 	fileChooser := choice.NewChooser(files)
 	return fileChooser.Run(), nil
 }
+
+// If it is a hidden file with no extension, it returns an empty string.
+func getExt(fileName string) string {
+	ext := filepath.Ext(fileName)
+	if len(ext) == len(fileName) {
+		return ""
+	} else {
+		return ext
+	}
+}
