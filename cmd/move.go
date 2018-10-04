@@ -16,7 +16,7 @@ func removeExt(fileName string) string {
 	return path.Base(fileName[:len(fileName)-len(getExt(fileName))])
 }
 
-func addAffix(fileName string, affix string, destination string) string {
+func insertAffix(fileName string, affix string, destination string) string {
 	return filepath.Join(destination,
 		strings.Replace(removeExt(fileName), " ", "", -1)+
 			affix+
@@ -50,7 +50,7 @@ func move(_ *cobra.Command, args []string) error {
 			continue
 		}
 
-		if err := os.Rename(fileName, addAffix(fileName, affix, destination)); err != nil {
+		if err := os.Rename(fileName, insertAffix(fileName, affix, destination)); err != nil {
 			log.Println(err)
 		}
 	}
