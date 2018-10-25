@@ -102,6 +102,7 @@ func list(options *Options) error {
 	}
 
 	daysAgo := time.Now().AddDate(0, 0, -options.days)
+	size := convertSymbolsToNumbers(options.size)
 
 	for _, dir := range dirs {
 		internalStat, ok := dir.Sys().(*syscall.Stat_t)
@@ -112,8 +113,8 @@ func list(options *Options) error {
 			continue
 		}
 
-		if err = printFiles(os.Stdout, filepath.Join(trashPath, dir.Name()),
-			convertSymbolsToNumbers(options.size)); err != nil {
+		if err = printFiles(os.Stdout,
+			filepath.Join(trashPath, dir.Name()), size); err != nil {
 			return err
 		}
 	}
