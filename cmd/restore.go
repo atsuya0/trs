@@ -62,17 +62,17 @@ func chooseTarget() (string, string, error) {
 		return "", "", nil
 	}
 
-	filePath := filepath.Join(trashPath, date, fileName)
-	if _, err := os.Stat(filePath); err != nil {
+	oldFilePath := filepath.Join(trashPath, date, fileName)
+	if _, err := os.Stat(oldFilePath); err != nil {
 		return "", "", err
 	}
 
-	return filePath, removeAffix(fileName), nil
+	return oldFilePath, removeAffix(fileName), nil
 }
 
 // Restore chose file or directory.
 func restore(_ *cobra.Command, _ []string) error {
-	filePath, newFilePath, err := chooseTarget()
+	oldFilePath, newFilePath, err := chooseTarget()
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func restore(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("A file with the same name already exists.")
 	}
 
-	if err := os.Rename(filePath, newFilePath); err != nil {
+	if err := os.Rename(oldFilePath, newFilePath); err != nil {
 		return err
 	}
 
