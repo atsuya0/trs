@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -42,7 +41,7 @@ func move(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	affix := "_" + strconv.FormatInt(time.Now().Unix(), 10)
+	affix := "_" + time.Now().Format("15:04:05")
 
 	for _, fileName := range args {
 		if _, err := os.Stat(fileName); err != nil {
