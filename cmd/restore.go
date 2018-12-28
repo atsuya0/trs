@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,23 +42,29 @@ func removeAffix(org string) string {
 }
 
 // Choose the file to restore.
-func chooseTarget() (string, string, error) {
-	trashPath := getTrashPath()
+func chooseTarget(trashPath string) (string, string, error) {
+	for {
+		date, err := chooseFile(trashPath)
+		if err != nil {
+			return "", "", err
+		} else if date == "" {
+			return "", "", fmt.Errorf("Cannot get date")
+		}
 
-	date, err := chooseFile(trashPath)
-	if err != nil {
-		return "", "", err
-	} else if date == "" {
-		log.Fatalln("Cannot get date")
-		return "", "", nil
+		fileName, err := chooseFile(filepath.Join(trashPath, date))
+		if err != nil {
+			return "", "", err
+		} else if fileName != "" {
+			return date, fileName, nil
+		}
 	}
+}
 
-	fileName, err := chooseFile(filepath.Join(trashPath, date))
+func getTarget() (string, string, error) {
+	trashPath := getTrashPath()
+	date, fileName, err := chooseTarget(trashPath)
 	if err != nil {
 		return "", "", err
-	} else if fileName == "" {
-		log.Fatalln("Cannot get file name")
-		return "", "", nil
 	}
 
 	oldFilePath := filepath.Join(trashPath, date, fileName)
@@ -72,7 +77,7 @@ func chooseTarget() (string, string, error) {
 
 // Restore chose file or directory.
 func restore(_ *cobra.Command, _ []string) error {
-	oldFilePath, newFilePath, err := chooseTarget()
+	oldFilePath, newFilePath, err := getTarget()
 	if err != nil {
 		return err
 	}
