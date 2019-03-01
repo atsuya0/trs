@@ -10,7 +10,7 @@ import (
 func rootCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "trash",
-		Short: "move files to trash",
+		Short: "move files to trash can",
 	}
 
 	cmd.AddCommand(moveCmd())
@@ -24,7 +24,7 @@ func rootCmd() *cobra.Command {
 }
 
 func Execute() {
-	if err := createTrash(); err != nil {
+	if err := createTrashCan(); err != nil {
 		log.Fatalln(err)
 	}
 

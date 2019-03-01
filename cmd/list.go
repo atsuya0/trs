@@ -88,9 +88,9 @@ func printFiles(out io.Writer, path string, size int64) error {
 
 // ゴミ箱の中のファイル一覧を表示
 func list(options *Options) error {
-	trashPath := getTrashPath()
+	trashCanPath := getTrashCanPath()
 
-	dirs, err := ioutil.ReadDir(trashPath)
+	dirs, err := ioutil.ReadDir(trashCanPath)
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func list(options *Options) error {
 		}
 
 		if err = printFiles(os.Stdout,
-			filepath.Join(trashPath, dir.Name()), size); err != nil {
+			filepath.Join(trashCanPath, dir.Name()), size); err != nil {
 			return err
 		}
 	}
@@ -127,7 +127,7 @@ func listCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "list",
-		Short: "The list of the trash",
+		Short: "The list of the trash can",
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return list(options)
 		},

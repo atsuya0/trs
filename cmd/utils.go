@@ -10,8 +10,8 @@ import (
 	choice "github.com/tayusa/go-choice"
 )
 
-func getTrashPath() string {
-	if path := os.Getenv("TRASH_PATH"); path != "" {
+func getTrashCanPath() string {
+	if path := os.Getenv("TRASH_CAN_PATH"); path != "" {
 		return path
 	}
 	user, err := user.Current()
@@ -23,14 +23,14 @@ func getTrashPath() string {
 }
 
 // Create a directory as a trash can.
-func createTrash() error {
-	trashPath := getTrashPath()
+func createTrashCan() error {
+	trashCanPath := getTrashCanPath()
 
-	if _, err := os.Stat(trashPath); err == nil {
+	if _, err := os.Stat(trashCanPath); err == nil {
 		return nil
 	}
 
-	if err := os.Mkdir(trashPath, 0700); err != nil {
+	if err := os.Mkdir(trashCanPath, 0700); err != nil {
 		return err
 	}
 

@@ -22,8 +22,8 @@ func insertAffix(fileName string, affix string, destination string) string {
 			getExt(fileName))
 }
 
-func getDestination(trashPath string) (string, error) {
-	destination := filepath.Join(trashPath, time.Now().Format("2006-01-02"))
+func getDestination(trashCanPath string) (string, error) {
+	destination := filepath.Join(trashCanPath, time.Now().Format("2006-01-02"))
 	if _, err := os.Stat(destination); err == nil {
 		return destination, nil
 	}
@@ -36,7 +36,7 @@ func getDestination(trashPath string) (string, error) {
 }
 
 func move(_ *cobra.Command, args []string) error {
-	destination, err := getDestination(getTrashPath())
+	destination, err := getDestination(getTrashCanPath())
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func move(_ *cobra.Command, args []string) error {
 func moveCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "move",
-		Short: "Move files in the current directory to the trash",
+		Short: "Move files in the current directory to the trash can",
 		RunE:  move,
 	}
 

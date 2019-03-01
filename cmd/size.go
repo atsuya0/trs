@@ -13,10 +13,10 @@ var (
 	units = [6]string{"B", "kB", "MB", "GB", "TB", "PB"}
 )
 
-func getSize(trashPath string) (int64, error) {
+func getSize(trashCanPath string) (int64, error) {
 	var size int64 = 0
 
-	err := filepath.Walk(trashPath, func(_ string, info os.FileInfo, err error) error {
+	err := filepath.Walk(trashCanPath, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -51,9 +51,9 @@ func printSize(size int64) {
 func sizeCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "size",
-		Short: "The size of the trash directory",
+		Short: "The size of the trash can directory",
 		RunE: func(_ *cobra.Command, _ []string) error {
-			size, err := getSize(getTrashPath())
+			size, err := getSize(getTrashCanPath())
 			if err != nil {
 				return err
 			}

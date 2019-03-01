@@ -12,7 +12,7 @@ import (
 func loadStoragePeriod() (int64, error) {
 	const defaultPeriod = 30
 
-	strPeriod := os.Getenv("STORAGE_PERIOD_OF_THE_TRASH")
+	strPeriod := os.Getenv("TRASH_CAN_PERIOD")
 	if strPeriod == "" {
 		return time.Now().AddDate(0, 0, -defaultPeriod).UnixNano(), nil
 	}
@@ -24,7 +24,7 @@ func loadStoragePeriod() (int64, error) {
 }
 
 func autoDel(_ *cobra.Command, _ []string) error {
-	path := getTrashPath()
+	path := getTrashCanPath()
 
 	dirs, err := getFileNames(path)
 	if err != nil {

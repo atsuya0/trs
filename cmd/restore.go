@@ -42,16 +42,16 @@ func removeAffix(org string) string {
 }
 
 // Choose the file to restore.
-func chooseTarget(trashPath string) (string, string, error) {
+func chooseTarget(trashCanPath string) (string, string, error) {
 	for {
-		date, err := chooseFile(trashPath)
+		date, err := chooseFile(trashCanPath)
 		if err != nil {
 			return "", "", err
 		} else if date == "" {
 			return "", "", fmt.Errorf("Cannot get date")
 		}
 
-		fileName, err := chooseFile(filepath.Join(trashPath, date))
+		fileName, err := chooseFile(filepath.Join(trashCanPath, date))
 		if err != nil {
 			return "", "", err
 		} else if fileName != "" {
@@ -61,13 +61,13 @@ func chooseTarget(trashPath string) (string, string, error) {
 }
 
 func getTarget() (string, string, error) {
-	trashPath := getTrashPath()
-	date, fileName, err := chooseTarget(trashPath)
+	trashCanPath := getTrashCanPath()
+	date, fileName, err := chooseTarget(trashCanPath)
 	if err != nil {
 		return "", "", err
 	}
 
-	oldFilePath := filepath.Join(trashPath, date, fileName)
+	oldFilePath := filepath.Join(trashCanPath, date, fileName)
 	if _, err := os.Stat(oldFilePath); err != nil {
 		return "", "", err
 	}
@@ -98,7 +98,7 @@ func restore(_ *cobra.Command, _ []string) error {
 func restoreCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "restore",
-		Short: "Move files in the trash to the current directory",
+		Short: "Move files in the trash can to the current directory",
 		RunE:  restore,
 	}
 

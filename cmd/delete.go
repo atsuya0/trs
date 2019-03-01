@@ -28,7 +28,7 @@ func confirmDel(file string) bool {
 }
 
 func del(_ *cobra.Command, args []string) error {
-	root := getTrashPath()
+	root := getTrashCanPath()
 	date, err := chooseFile(root)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func del(_ *cobra.Command, args []string) error {
 func deleteCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "delete",
-		Short: "Delete a file in the trash",
+		Short: "Delete a file in the trash can",
 		RunE:  del,
 	}
 

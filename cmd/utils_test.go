@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetTrashPath(t *testing.T) {
+func TestGetTrashCanPath(t *testing.T) {
 	home := os.Getenv("HOME")
 	patterns := []struct {
 		env    string
@@ -18,12 +18,12 @@ func TestGetTrashPath(t *testing.T) {
 	}
 
 	for _, pattern := range patterns {
-		if err := os.Setenv("TRASH_PATH", pattern.env); err != nil {
+		if err := os.Setenv("TRASH_CAN_PATH", pattern.env); err != nil {
 			log.Println(err)
 			continue
 		}
-		if getTrashPath() != pattern.output {
-			t.Errorf("%s != %s", getTrashPath(), pattern.output)
+		if getTrashCanPath() != pattern.output {
+			t.Errorf("%s != %s", getTrashCanPath(), pattern.output)
 		}
 	}
 }
