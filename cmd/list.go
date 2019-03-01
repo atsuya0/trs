@@ -86,7 +86,6 @@ func printFiles(out io.Writer, path string, size int64) error {
 	return nil
 }
 
-// ゴミ箱の中のファイル一覧を表示
 func list(options *Options) error {
 	trashCanPath := getTrashCanPath()
 
@@ -127,21 +126,20 @@ func listCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "list",
-		Short: "The list of the trash can",
+		Short: "list the files in the trash can",
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return list(options)
 		},
 	}
 	cmd.Flags().IntVarP(
 		&options.days, "days", "d", 0,
-		`Display files that are not past [n] days
-		since they were discarded in the trash can.`)
+		"Displays the files moved to the trash box within [n] days.")
 	cmd.Flags().StringVarP(
 		&options.size, "size", "s", "0B",
-		"Display files with size greater than [n].")
+		"Display the files with size greater than [n].")
 	cmd.Flags().BoolVarP(
 		&options.reverse, "reverse", "r", false,
-		"display in reverse order")
+		"Display in reverse order")
 
 	return cmd
 }

@@ -54,7 +54,7 @@ func autoDel(_ *cobra.Command, _ []string) error {
 func autoDeleteCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "auto-delete",
-		Short: "Delete files that passed one month after moving to the trash can",
+		Short: "Delete the files if the date and time that the file moved in the trash can exceed the specified period.",
 		RunE:  autoDel,
 	}
 

@@ -10,7 +10,7 @@ import (
 func rootCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "trash",
-		Short: "move files to trash can",
+		Short: "Move the files to the trash can.",
 	}
 
 	cmd.AddCommand(moveCmd())

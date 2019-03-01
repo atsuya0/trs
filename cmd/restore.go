@@ -75,7 +75,6 @@ func getTarget() (string, string, error) {
 	return oldFilePath, removeAffix(fileName), nil
 }
 
-// Restore chose file or directory.
 func restore(_ *cobra.Command, _ []string) error {
 	oldFilePath, newFilePath, err := getTarget()
 	if err != nil {
@@ -98,7 +97,7 @@ func restore(_ *cobra.Command, _ []string) error {
 func restoreCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "restore",
-		Short: "Move files in the trash can to the current directory",
+		Short: "Move the files in the trash can to the current directory",
 		RunE:  restore,
 	}
 
