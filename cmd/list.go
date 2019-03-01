@@ -25,7 +25,7 @@ const (
 	white                  = "\x1b[0;37m%s\x1b[m\n"
 )
 
-type listOptions struct {
+type listOption struct {
 	days    int
 	size    string
 	reverse bool
@@ -86,7 +86,7 @@ func printFiles(out io.Writer, path string, size int64) error {
 	return nil
 }
 
-func list(options *listOptions) error {
+func list(option *listOption) error {
 	trashCanPath := getTrashCanPath()
 
 	dirs, err := ioutil.ReadDir(trashCanPath)
@@ -94,21 +94,21 @@ func list(options *listOptions) error {
 		return err
 	}
 
-	if options.reverse {
+	if option.reverse {
 		sort.Sort(sort.Reverse(Dirs(dirs)))
 	} else {
 		sort.Sort(Dirs(dirs))
 	}
 
-	daysAgo := time.Now().AddDate(0, 0, -options.days)
-	size := convertSymbolsToNumbers(options.size)
+	daysAgo := time.Now().AddDate(0, 0, -option.days)
+	size := convertSymbolsToNumbers(option.size)
 
 	for _, dir := range dirs {
 		internalStat, ok := dir.Sys().(*syscall.Stat_t)
 		if !ok {
 			return fmt.Errorf("fileInfo.Sys(): cast error")
 		}
-		if options.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
+		if option.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
 			continue
 		}
 
@@ -122,23 +122,23 @@ func list(options *listOptions) error {
 }
 
 func listCmd() *cobra.Command {
-	options := &listOptions{}
+	option := &listOption{}
 
 	var cmd = &cobra.Command{
 		Use:   "list",
 		Short: "list the files in the trash can",
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return list(options)
+			return list(option)
 		},
 	}
 	cmd.Flags().IntVarP(
-		&options.days, "days", "d", 0,
+		&option.days, "days", "d", 0,
 		"Displays the files moved to the trash box within [n] days.")
 	cmd.Flags().StringVarP(
-		&options.size, "size", "s", "0B",
+		&option.size, "size", "s", "0B",
 		"Display the files with size greater than [n].")
 	cmd.Flags().BoolVarP(
-		&options.reverse, "reverse", "r", false,
+		&option.reverse, "reverse", "r", false,
 		"Display in reverse order")
 
 	return cmd
