@@ -50,7 +50,7 @@ func autoDeleteCmd() *cobra.Command {
 
 	cmd.Flags().IntVarP(
 		&option.period, "period", "p", 30,
-		"Delete the files moved in the trash can [n] days ago and later.")
+		"Delete the files moved in the trash can [days] days ago and later.")
 
 	return cmd
 }

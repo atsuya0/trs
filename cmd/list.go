@@ -126,20 +126,20 @@ func listCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "list",
-		Short: "list the files in the trash can",
+		Short: "List the files in the trash can",
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return list(option)
 		},
 	}
 	cmd.Flags().IntVarP(
 		&option.days, "days", "d", 0,
-		"Displays the files moved to the trash box within [n] days.")
+		"List the files moved to the trash can within [days] days.")
 	cmd.Flags().StringVarP(
 		&option.size, "size", "s", "0B",
-		"Display the files with size greater than [n].")
+		"List the files with size greater than [size].")
 	cmd.Flags().BoolVarP(
 		&option.reverse, "reverse", "r", false,
-		"Display in reverse order")
+		"List in reverse order")
 
 	return cmd
 }
