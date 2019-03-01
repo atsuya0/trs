@@ -25,7 +25,7 @@ const (
 	white                  = "\x1b[0;37m%s\x1b[m\n"
 )
 
-type Options struct {
+type listOptions struct {
 	days    int
 	size    string
 	reverse bool
@@ -86,7 +86,7 @@ func printFiles(out io.Writer, path string, size int64) error {
 	return nil
 }
 
-func list(options *Options) error {
+func list(options *listOptions) error {
 	trashCanPath := getTrashCanPath()
 
 	dirs, err := ioutil.ReadDir(trashCanPath)
@@ -122,7 +122,7 @@ func list(options *Options) error {
 }
 
 func listCmd() *cobra.Command {
-	options := &Options{}
+	options := &listOptions{}
 
 	var cmd = &cobra.Command{
 		Use:   "list",
