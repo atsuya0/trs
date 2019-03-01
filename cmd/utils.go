@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/tayusa/go-choice"
+	choice "github.com/tayusa/go-choice"
 )
 
 func getTrashPath() string {

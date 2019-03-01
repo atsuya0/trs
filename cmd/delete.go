@@ -47,7 +47,7 @@ func del(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func cmdDelete() *cobra.Command {
+func deleteCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "delete",
 		Short: "Delete a file in the trash",

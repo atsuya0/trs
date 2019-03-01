@@ -95,7 +95,7 @@ func restore(_ *cobra.Command, _ []string) error {
 	return nil
 }
 
-func cmdRestore() *cobra.Command {
+func restoreCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "restore",
 		Short: "Move files in the trash to the current directory",

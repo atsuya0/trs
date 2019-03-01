@@ -122,7 +122,7 @@ func list(options *Options) error {
 	return nil
 }
 
-func cmdList() *cobra.Command {
+func listCmd() *cobra.Command {
 	options := &Options{}
 
 	var cmd = &cobra.Command{

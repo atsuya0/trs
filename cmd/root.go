@@ -13,12 +13,12 @@ func rootCmd() *cobra.Command {
 		Short: "move files to trash",
 	}
 
-	cmd.AddCommand(cmdMove())
-	cmd.AddCommand(cmdList())
-	cmd.AddCommand(cmdDelete())
-	cmd.AddCommand(cmdRestore())
-	cmd.AddCommand(cmdSize())
-	cmd.AddCommand(cmdAutoDelete())
+	cmd.AddCommand(moveCmd())
+	cmd.AddCommand(listCmd())
+	cmd.AddCommand(deleteCmd())
+	cmd.AddCommand(restoreCmd())
+	cmd.AddCommand(sizeCmd())
+	cmd.AddCommand(autoDeleteCmd())
 
 	return cmd
 }

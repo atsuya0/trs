@@ -48,7 +48,7 @@ func printSize(size int64) {
 	fmt.Println(convertNumbersToSymbols(float64(size), 0))
 }
 
-func cmdSize() *cobra.Command {
+func sizeCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "size",
 		Short: "The size of the trash directory",

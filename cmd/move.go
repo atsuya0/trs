@@ -57,7 +57,7 @@ func move(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func cmdMove() *cobra.Command {
+func moveCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "move",
 		Short: "Move files in the current directory to the trash",

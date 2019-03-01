@@ -51,7 +51,7 @@ func autoDel(_ *cobra.Command, _ []string) error {
 	return nil
 }
 
-func cmdAutoDelete() *cobra.Command {
+func autoDeleteCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "auto-delete",
 		Short: "Delete files that passed one month after moving to the trash can",
