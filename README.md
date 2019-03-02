@@ -1,3 +1,4 @@
+# Setup
 Use $TRASH_CAN_PATH to specify path.
 It is ~/.Trash in the default.
 # Available Commands
@@ -9,13 +10,13 @@ Move the files in the trash can to the current directory.
 List the files in the trash can.
 ### --reverse(-r)
 List in reverse order.
-## --days(-d) [days]
+### --days(-d) [days]
 List the files moved to the trash can within [days] days.
 ```bash
 $ trash --days 1
 $ trash -d 10
 ```
-## --size(-s) [size]
+### --size(-s) [size]
 List the files with size greater than [size] size.
 ```bash
 $ trash --size 500MB
