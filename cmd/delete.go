@@ -28,18 +28,22 @@ func confirmDel(file string) bool {
 }
 
 func del(_ *cobra.Command, args []string) error {
-	root := getTrashCanPath()
-	date, err := chooseFile(root)
+	path, err := getTrashCanPath()
 	if err != nil {
 		return err
 	}
-	file, err := chooseFile(filepath.Join(root, date))
+
+	date, err := chooseFile(path)
+	if err != nil {
+		return err
+	}
+	file, err := chooseFile(filepath.Join(path, date))
 	if err != nil {
 		return err
 	}
 
 	if confirmDel(file) {
-		if err := os.RemoveAll(filepath.Join(root, date, file)); err != nil {
+		if err := os.RemoveAll(filepath.Join(path, date, file)); err != nil {
 			return err
 		}
 	}

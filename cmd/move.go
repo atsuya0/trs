@@ -36,7 +36,12 @@ func getDestination(trashCanPath string) (string, error) {
 }
 
 func move(_ *cobra.Command, args []string) error {
-	destination, err := getDestination(getTrashCanPath())
+	path, err := getTrashCanPath()
+	if err != nil {
+		return err
+	}
+
+	destination, err := getDestination(path)
 	if err != nil {
 		return err
 	}

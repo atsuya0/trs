@@ -61,13 +61,17 @@ func chooseTarget(trashCanPath string) (string, string, error) {
 }
 
 func getTarget() (string, string, error) {
-	trashCanPath := getTrashCanPath()
-	date, fileName, err := chooseTarget(trashCanPath)
+	path, err := getTrashCanPath()
 	if err != nil {
 		return "", "", err
 	}
 
-	oldFilePath := filepath.Join(trashCanPath, date, fileName)
+	date, fileName, err := chooseTarget(path)
+	if err != nil {
+		return "", "", err
+	}
+
+	oldFilePath := filepath.Join(path, date, fileName)
 	if _, err := os.Stat(oldFilePath); err != nil {
 		return "", "", err
 	}

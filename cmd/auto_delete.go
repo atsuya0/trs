@@ -13,7 +13,10 @@ type autoDelOption struct {
 }
 
 func autoDel(option *autoDelOption) error {
-	path := getTrashCanPath()
+	path, err := getTrashCanPath()
+	if err != nil {
+		return err
+	}
 
 	dirs, err := getFileNames(path)
 	if err != nil {

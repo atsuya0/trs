@@ -88,9 +88,12 @@ func printFiles(out io.Writer, path string, size int64) error {
 }
 
 func list(option *listOption) error {
-	trashCanPath := getTrashCanPath()
+	path, err := getTrashCanPath()
+	if err != nil {
+		return err
+	}
 
-	dirs, err := ioutil.ReadDir(trashCanPath)
+	dirs, err := ioutil.ReadDir(path)
 	if err != nil {
 		return err
 	}
@@ -114,7 +117,7 @@ func list(option *listOption) error {
 		}
 
 		if err = printFiles(os.Stdout,
-			filepath.Join(trashCanPath, dir.Name()), size); err != nil {
+			filepath.Join(path, dir.Name()), size); err != nil {
 			return err
 		}
 	}

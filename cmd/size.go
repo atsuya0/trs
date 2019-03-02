@@ -53,7 +53,11 @@ func sizeCmd() *cobra.Command {
 		Use:   "size",
 		Short: "The size of the trash can directory",
 		RunE: func(_ *cobra.Command, _ []string) error {
-			size, err := getSize(getTrashCanPath())
+			path, err := getTrashCanPath()
+			if err != nil {
+				return err
+			}
+			size, err := getSize(path)
 			if err != nil {
 				return err
 			}
