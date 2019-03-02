@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/xerrors"
 )
 
 const (
@@ -106,7 +107,7 @@ func list(option *listOption) error {
 	for _, dir := range dirs {
 		internalStat, ok := dir.Sys().(*syscall.Stat_t)
 		if !ok {
-			return fmt.Errorf("fileInfo.Sys(): cast error")
+			return xerrors.New("fileInfo.Sys(): cast error")
 		}
 		if option.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
 			continue
