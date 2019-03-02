@@ -43,7 +43,6 @@ func createTrashCan() error {
 func getFileNames(path string) ([]string, error) {
 	fd, err := os.Open(path)
 	if err != nil {
-		log.Println(err)
 		return []string{}, err
 	}
 
@@ -55,7 +54,6 @@ func getFileNames(path string) ([]string, error) {
 
 	files, err := fd.Readdirnames(0)
 	if err != nil {
-		log.Println(err)
 		return []string{}, err
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(files)))
