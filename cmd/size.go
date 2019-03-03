@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/xerrors"
 )
 
 var (
@@ -59,7 +60,7 @@ func sizeCmd() *cobra.Command {
 			}
 			size, err := getSize(path)
 			if err != nil {
-				return err
+				return xerrors.Errorf("Don't get the the allocated size of trash can: %w", err)
 			}
 
 			printSize(size)

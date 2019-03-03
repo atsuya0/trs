@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	choice "github.com/tayusa/go-choice"
+	"golang.org/x/xerrors"
 )
 
 func getTrashCanPath() (string, error) {
@@ -25,7 +26,7 @@ func getTrashCanPath() (string, error) {
 func createTrashCan() error {
 	trashCanPath, err := getTrashCanPath()
 	if err != nil {
-		return err
+		return xerrors.Errorf("Cannot get the path of the trash can: %w", err)
 	}
 
 	if _, err := os.Stat(trashCanPath); err == nil {
@@ -58,14 +59,14 @@ func getFileNames(path string) ([]string, error) {
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(files)))
 
-	return files, err
+	return files, nil
 }
 
 // Choose one from files and directories.
 func chooseFile(path string) (string, error) {
 	files, err := getFileNames(path)
 	if err != nil {
-		return "", err
+		return "", xerrors.Errorf("Cannot get the filenames: %w", err)
 	}
 	fileChooser := choice.NewChooser(files)
 	return fileChooser.Run(), nil

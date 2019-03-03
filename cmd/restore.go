@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/xerrors"
 )
 
 type fileNames []string
@@ -20,7 +20,6 @@ func (f fileNames) contains(file string) bool {
 	return false
 }
 
-// A file of the same name exists in the current directory.
 func fileExistsCurrentDir(name string) (bool, error) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -28,7 +27,7 @@ func fileExistsCurrentDir(name string) (bool, error) {
 	}
 	filesInCurrentDir, err := getFileNames(wd)
 	if err != nil {
-		return true, err
+		return true, xerrors.Errorf("Cannot get the filenames: %w", err)
 	}
 	if fileNames(filesInCurrentDir).contains(name) {
 		return true, nil
@@ -46,14 +45,14 @@ func chooseTarget(trashCanPath string) (string, string, error) {
 	for {
 		date, err := chooseFile(trashCanPath)
 		if err != nil {
-			return "", "", err
+			return "", "", xerrors.Errorf("Cannot choose the date: %w", err)
 		} else if date == "" {
-			return "", "", fmt.Errorf("Cannot get date")
+			return "", "", xerrors.New("Cancel")
 		}
 
 		fileName, err := chooseFile(filepath.Join(trashCanPath, date))
 		if err != nil {
-			return "", "", err
+			return "", "", xerrors.Errorf("Cannot choose the file: %w", err)
 		} else if fileName != "" {
 			return date, fileName, nil
 		}
@@ -63,17 +62,17 @@ func chooseTarget(trashCanPath string) (string, string, error) {
 func getTarget() (string, string, error) {
 	path, err := getTrashCanPath()
 	if err != nil {
-		return "", "", err
+		return "", "", xerrors.Errorf("Cannot get the path of the trash can: %w", err)
 	}
 
 	date, fileName, err := chooseTarget(path)
 	if err != nil {
-		return "", "", err
+		return "", "", xerrors.Errorf("Cannot choose the trash: %w", err)
 	}
 
 	oldFilePath := filepath.Join(path, date, fileName)
 	if _, err := os.Stat(oldFilePath); err != nil {
-		return "", "", err
+		return "", "", xerrors.Errorf("The specified file does not exist: %w", err)
 	}
 
 	return oldFilePath, removeAffix(fileName), nil
@@ -88,7 +87,7 @@ func restore(_ *cobra.Command, _ []string) error {
 	if exists, err := fileExistsCurrentDir(newFilePath); err != nil {
 		return err
 	} else if exists {
-		return fmt.Errorf("A file with the same name already exists.")
+		return xerrors.New("A file with the same name already exists")
 	}
 
 	if err := os.Rename(oldFilePath, newFilePath); err != nil {

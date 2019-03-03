@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/xerrors"
 )
 
 func rootCmd() *cobra.Command {
@@ -25,7 +26,7 @@ func rootCmd() *cobra.Command {
 
 func Execute() {
 	if err := createTrashCan(); err != nil {
-		log.Fatalln(err)
+		log.Fatalln(xerrors.Errorf("Cannot create the trash can: %w", err))
 	}
 
 	cmd := rootCmd()
