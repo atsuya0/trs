@@ -49,7 +49,7 @@ func getFileNames(path string) ([]string, error) {
 
 	defer func() {
 		if err = fd.Close(); err != nil {
-			log.Fatalln(err)
+			log.Fatalf("%+v\n", err)
 		}
 	}()
 

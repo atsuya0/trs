@@ -50,12 +50,12 @@ func move(_ *cobra.Command, args []string) error {
 
 	for _, fileName := range args {
 		if _, err := os.Stat(fileName); err != nil {
-			log.Println(err)
+			log.Printf("%+v\n", err)
 			continue
 		}
 
 		if err := os.Rename(fileName, insertAffix(fileName, affix, destination)); err != nil {
-			log.Println(err)
+			log.Printf("%+v\n", err)
 		}
 	}
 

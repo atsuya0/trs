@@ -26,7 +26,7 @@ func rootCmd() *cobra.Command {
 
 func Execute() {
 	if err := createTrashCan(); err != nil {
-		log.Fatalln(xerrors.Errorf("Cannot create the trash can: %w", err))
+		log.Fatalf("%+v\n", xerrors.Errorf("Cannot create the trash can: %w", err))
 	}
 
 	cmd := rootCmd()
