@@ -6,5 +6,7 @@ github.com/spf13/pflag v1.0.3 h1:zPAT6CGy6wXeQ7NtTnaTerfKOsV6V6F8agHXFiazDkg=
 github.com/spf13/pflag v1.0.3/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/tayusa/go-choice v0.0.0-20180913010540-cf8fbef5a4ef h1:oQdPn/XTI8YQaztzbc9qIfpu3Wgz8zR6hEsily1UGPI=
 github.com/tayusa/go-choice v0.0.0-20180913010540-cf8fbef5a4ef/go.mod h1:3aTyvQAFHeo+U7MHEq9Kxzg5ov1p5rdSuX5cMCsV0Ss=
+github.com/tayusa/go-choice v0.0.0-20190304044128-65148097c23a h1:vmnTtelDGILpvVJ93pqYASZsQTP1+KLE8Ygb8XeaSUE=
+github.com/tayusa/go-choice v0.0.0-20190304044128-65148097c23a/go.mod h1:KEqhu3DV0Tsc18CIQFEqSZ4HUZ7fHhnDfgHAVxyad5U=
 golang.org/x/xerrors v0.0.0-20190212162355-a5947ffaace3 h1:P6iTFmrTQqWrqLZPX1VMzCUbCRCAUXSUsSpkEOvWzJ0=
 golang.org/x/xerrors v0.0.0-20190212162355-a5947ffaace3/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=

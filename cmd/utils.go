@@ -68,7 +68,10 @@ func chooseFile(path string) (string, error) {
 	if err != nil {
 		return "", xerrors.Errorf("Cannot get the filenames: %w", err)
 	}
-	fileChooser := choice.NewChooser(files)
+	fileChooser, err := choice.NewChooser(files)
+	if err != nil {
+		return "", xerrors.Errorf("Cannot generate the chooser: %w", err)
+	}
 	return fileChooser.Run(), nil
 }
 
