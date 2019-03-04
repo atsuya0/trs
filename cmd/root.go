@@ -24,12 +24,12 @@ func rootCmd() *cobra.Command {
 	return cmd
 }
 
-func Execute() {
+func Execute() error {
 	if err := createTrashCan(); err != nil {
 		log.Fatalf("%+v\n", xerrors.Errorf("Cannot create the trash can: %w", err))
 	}
 
 	cmd := rootCmd()
 	cmd.SetOutput(os.Stdout)
-	cmd.Execute()
+	return cmd.Execute()
 }
