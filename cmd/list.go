@@ -32,21 +32,6 @@ type listOption struct {
 	reverse bool
 }
 
-type Dirs []os.FileInfo
-
-func (d Dirs) Len() int {
-	return len(d)
-}
-
-func (d Dirs) Less(i, j int) bool {
-	return d[i].Sys().(*syscall.Stat_t).Ctim.Nano() <
-		d[j].Sys().(*syscall.Stat_t).Ctim.Nano()
-}
-
-func (d Dirs) Swap(i, j int) {
-	d[i], d[j] = d[j], d[i]
-}
-
 func convertSymbolsToNumbers(size string) int64 {
 	for i, unit := range units {
 		idx := strings.LastIndex(size, unit)
@@ -112,7 +97,7 @@ func list(option *listOption) error {
 		if !ok {
 			return xerrors.New("fileInfo.Sys(): cast error")
 		}
-		if option.days != 0 && internalStat.Ctim.Nano() < daysAgo.UnixNano() {
+		if option.days != 0 && greaterThenCtime(internalStat, daysAgo.UnixNano()) {
 			continue
 		}
 

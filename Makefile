@@ -1,5 +1,10 @@
-.PHONY: install
+.PHONY: install install-for-mac format
 
-install:
-	@goimports -w cmd main.go
+install: format
 	@go install
+
+install-for-mac: format
+	@go install -tags mac
+
+format:
+	@goimports -w .
