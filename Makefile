@@ -1,5 +1,7 @@
-.PHONY: install
+.PHONY: install format
 
-install:
-	@goimports -w cmd main.go
+install: format
 	@go install
+
+format:
+	@goimports -w .
