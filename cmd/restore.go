@@ -63,26 +63,6 @@ func removeAffix(org string) string {
 	return org[:strings.LastIndex(org, "_")] + getExt(org)
 }
 
-// Specify the files to restore.
-func specifyTargets(trashCanPath string) (string, []string, error) {
-	for {
-		dates, err := chooseFiles(trashCanPath)
-		date := dates[0]
-		if err != nil {
-			return "", make([]string, 0), xerrors.Errorf("Cannot choose the date: %w", err)
-		} else if date == "" {
-			return "", make([]string, 0), nil
-		}
-
-		fileNames, err := chooseFiles(filepath.Join(trashCanPath, date))
-		if err != nil {
-			return "", make([]string, 0), xerrors.Errorf("Cannot choose the file: %w", err)
-		} else if len(fileNames) != 0 {
-			return date, fileNames, nil
-		}
-	}
-}
-
 func getTargets() ([]filePathPair, error) {
 	path, err := getTrashCanPath()
 	if err != nil {
