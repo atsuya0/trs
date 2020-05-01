@@ -1,8 +1,9 @@
 module github.com/tayusa/trash
 
+go 1.14
+
 require (
-	github.com/spf13/cobra v0.0.3
-	github.com/spf13/pflag v1.0.3 // indirect
-	github.com/tayusa/go-choice v0.0.0-20190304044128-65148097c23a
-	golang.org/x/xerrors v0.0.0-20190212162355-a5947ffaace3
+	github.com/spf13/cobra v1.0.0
+	github.com/tayusa/go-choice v0.0.0-20200501091042-f40ae768cacc
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 )

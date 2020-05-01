@@ -18,7 +18,7 @@ func autoDel(option *autoDelOption) error {
 		return err
 	}
 
-	dirs, err := getFileNames(path)
+	dirs, err := ls(path)
 	if err != nil {
 		return err
 	}
