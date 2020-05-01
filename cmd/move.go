@@ -15,14 +15,6 @@ func generateAffix() string {
 	return "_" + time.Now().Format("15:04:05")
 }
 
-func generateDestination(path string) (string, bool) {
-	destination := filepath.Join(path, time.Now().Format("2006-01-02"))
-	if _, err := os.Stat(destination); err == nil {
-		return destination, true
-	}
-	return "", false
-}
-
 func removeExt(fileName string) string {
 	return path.Base(fileName[:len(fileName)-len(getExt(fileName))])
 }
@@ -35,11 +27,10 @@ func insertAffix(fileName string, affix string, destination string) string {
 }
 
 func getDestination(trashCanPath string) (string, error) {
-	destination, isGenerated := generateDestination(trashCanPath)
-	if !isGenerated {
+	destination := filepath.Join(trashCanPath, time.Now().Format("2006-01-02"))
+	if _, err := os.Stat(destination); err == nil {
 		return destination, nil
 	}
-
 	if err := os.Mkdir(destination, 0700); err != nil {
 		return "", err
 	}
