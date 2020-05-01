@@ -9,30 +9,53 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type fileNames []string
-
-func (f fileNames) contains(file string) bool {
-	for _, v := range f {
-		if file == v {
-			return true
-		}
-	}
-	return false
+type targets struct {
+	path      string
+	fileNames []string
 }
 
-func fileExistsCurrentDir(name string) (bool, error) {
+func (t targets) createPairs() ([]filePathPair, error) {
+	var filePathPairs []filePathPair
+	for _, v := range t.fileNames {
+		pair := filePathPair{old: filepath.Join(t.path, v), new: removeAffix(v)}
+		if err := pair.oldFileExists(); err != nil {
+			return make([]filePathPair, 0), err
+		}
+		if err := pair.newFileExists(); err != nil {
+			return make([]filePathPair, 0), err
+		}
+		filePathPairs = append(filePathPairs, pair)
+	}
+	return filePathPairs, nil
+}
+
+type filePathPair struct {
+	old string
+	new string
+}
+
+func (f filePathPair) oldFileExists() error {
+	if _, err := os.Stat(f.old); err != nil {
+		return xerrors.Errorf("The specified file does not exist: %w", err)
+	}
+	return nil
+}
+
+func (f filePathPair) newFileExists() error {
 	wd, err := os.Getwd()
 	if err != nil {
-		return true, err
+		return err
 	}
-	filesInCurrentDir, err := getFileNames(wd)
+	filesInCurrentDir, err := ls(wd)
 	if err != nil {
-		return true, xerrors.Errorf("Cannot get the filenames: %w", err)
+		return xerrors.Errorf("Cannot ls: %w", err)
 	}
-	if fileNames(filesInCurrentDir).contains(name) {
-		return true, nil
+	for _, file := range filesInCurrentDir {
+		if f.new == file {
+			return xerrors.New("A file with the same name already exists")
+		}
 	}
-	return false, nil
+	return nil
 }
 
 // Remove a character string what given when moving to the trash can.
@@ -40,58 +63,51 @@ func removeAffix(org string) string {
 	return org[:strings.LastIndex(org, "_")] + getExt(org)
 }
 
-// Choose the file to restore.
-func chooseTarget(trashCanPath string) (string, string, error) {
+// Specify the files to restore.
+func specifyTargets(trashCanPath string) (string, []string, error) {
 	for {
-		date, err := chooseFile(trashCanPath)
+		dates, err := chooseFiles(trashCanPath)
+		date := dates[0]
 		if err != nil {
-			return "", "", xerrors.Errorf("Cannot choose the date: %w", err)
+			return "", make([]string, 0), xerrors.Errorf("Cannot choose the date: %w", err)
 		} else if date == "" {
-			return "", "", xerrors.New("Cancel")
+			return "", make([]string, 0), nil
 		}
 
-		fileName, err := chooseFile(filepath.Join(trashCanPath, date))
+		fileNames, err := chooseFiles(filepath.Join(trashCanPath, date))
 		if err != nil {
-			return "", "", xerrors.Errorf("Cannot choose the file: %w", err)
-		} else if fileName != "" {
-			return date, fileName, nil
+			return "", make([]string, 0), xerrors.Errorf("Cannot choose the file: %w", err)
+		} else if len(fileNames) != 0 {
+			return date, fileNames, nil
 		}
 	}
 }
 
-func getTarget() (string, string, error) {
+func getTargets() ([]filePathPair, error) {
 	path, err := getTrashCanPath()
 	if err != nil {
-		return "", "", xerrors.Errorf("Cannot get the path of the trash can: %w", err)
+		return make([]filePathPair, 0), xerrors.Errorf("Cannot get the path of the trash can: %w", err)
 	}
 
-	date, fileName, err := chooseTarget(path)
+	date, fileNames, err := specifyTargets(path)
 	if err != nil {
-		return "", "", xerrors.Errorf("Cannot choose the trash: %w", err)
+		return make([]filePathPair, 0), xerrors.Errorf("Cannot specify the files to restore: %w", err)
 	}
-
-	oldFilePath := filepath.Join(path, date, fileName)
-	if _, err := os.Stat(oldFilePath); err != nil {
-		return "", "", xerrors.Errorf("The specified file does not exist: %w", err)
-	}
-
-	return oldFilePath, removeAffix(fileName), nil
+	targets := targets{path: filepath.Join(path, date), fileNames: fileNames}
+	filePathPairs, err := targets.createPairs()
+	return filePathPairs, err
 }
 
 func restore(_ *cobra.Command, _ []string) error {
-	oldFilePath, newFilePath, err := getTarget()
+	filePathPairs, err := getTargets()
 	if err != nil {
 		return err
 	}
 
-	if exists, err := fileExistsCurrentDir(newFilePath); err != nil {
-		return err
-	} else if exists {
-		return xerrors.New("A file with the same name already exists")
-	}
-
-	if err := os.Rename(oldFilePath, newFilePath); err != nil {
-		return err
+	for _, v := range filePathPairs {
+		if err := os.Rename(v.old, v.new); err != nil {
+			return err
+		}
 	}
 
 	return nil

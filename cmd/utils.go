@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	choice "github.com/tayusa/go-choice"
+	"github.com/tayusa/go-choice"
 	"golang.org/x/xerrors"
 )
 
@@ -40,8 +40,8 @@ func createTrashCan() error {
 	return nil
 }
 
-// Fetch files and directories from the specified path.
-func getFileNames(path string) ([]string, error) {
+// Get files and directories from the specified path.
+func ls(path string) ([]string, error) {
 	fd, err := os.Open(path)
 	if err != nil {
 		return []string{}, err
@@ -62,15 +62,14 @@ func getFileNames(path string) ([]string, error) {
 	return files, nil
 }
 
-// Choose one from files and directories.
-func chooseFile(path string) (string, error) {
-	files, err := getFileNames(path)
+func chooseFiles(path string) ([]string, error) {
+	files, err := ls(path)
 	if err != nil {
-		return "", xerrors.Errorf("Cannot get the filenames: %w", err)
+		return make([]string, 0), xerrors.Errorf("Cannot get the filenames: %w", err)
 	}
 	fileChooser, err := choice.NewChooser(files)
 	if err != nil {
-		return "", xerrors.Errorf("Cannot generate the chooser: %w", err)
+		return make([]string, 0), xerrors.Errorf("Cannot generate the chooser: %w", err)
 	}
 	return fileChooser.Run(), nil
 }
