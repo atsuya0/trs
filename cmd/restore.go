@@ -58,6 +58,10 @@ func (f filePathPair) newFileExists() error {
 	return nil
 }
 
+func (f filePathPair) rename() error {
+	return os.Rename(f.old, f.new)
+}
+
 // Remove a character string what given when moving to the trash can.
 func removeAffix(org string) string {
 	return org[:strings.LastIndex(org, "_")] + getExt(org)
@@ -84,8 +88,8 @@ func restore(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	for _, v := range filePathPairs {
-		if err := os.Rename(v.old, v.new); err != nil {
+	for _, pair := range filePathPairs {
+		if err := pair.rename(); err != nil {
 			return err
 		}
 	}
