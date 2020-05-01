@@ -11,6 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func generateAffix() string {
+	return "_" + time.Now().Format("15:04:05")
+}
+
+func generateDestination(path string) (string, bool) {
+	destination := filepath.Join(path, time.Now().Format("2006-01-02"))
+	if _, err := os.Stat(destination); err == nil {
+		return destination, true
+	}
+	return "", false
+}
+
 func removeExt(fileName string) string {
 	return path.Base(fileName[:len(fileName)-len(getExt(fileName))])
 }
@@ -23,8 +35,8 @@ func insertAffix(fileName string, affix string, destination string) string {
 }
 
 func getDestination(trashCanPath string) (string, error) {
-	destination := filepath.Join(trashCanPath, time.Now().Format("2006-01-02"))
-	if _, err := os.Stat(destination); err == nil {
+	destination, isGenerated := generateDestination(trashCanPath)
+	if !isGenerated {
 		return destination, nil
 	}
 
@@ -46,8 +58,7 @@ func move(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	affix := "_" + time.Now().Format("15:04:05")
-
+	affix := generateAffix()
 	for _, fileName := range args {
 		if _, err := os.Stat(fileName); err != nil {
 			log.Printf("%+v\n", err)
