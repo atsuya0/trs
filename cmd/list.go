@@ -25,6 +25,7 @@ type listOption struct {
 	days    int
 	size    string
 	reverse bool
+	path    bool
 }
 
 func convertSymbolsToNumbers(size string) int64 {
@@ -41,15 +42,22 @@ func convertSymbolsToNumbers(size string) int64 {
 	return 0
 }
 
-func printFile(file os.FileInfo) {
-	if file.IsDir() {
-		fmt.Printf(blue, file.Name())
-	} else if file.Mode()&os.ModeSymlink != 0 {
-		fmt.Printf(cyan, file.Name())
-	} else if file.Mode()&executable != 0 {
-		fmt.Printf(green, file.Name())
+func printFile(file file, path bool) {
+	var name string
+	if path {
+		name = file.path
 	} else {
-		fmt.Printf(white, file.Name())
+		name = file.info.Name()
+	}
+
+	if file.info.IsDir() {
+		fmt.Printf(blue, name)
+	} else if file.info.Mode()&os.ModeSymlink != 0 {
+		fmt.Printf(cyan, name)
+	} else if file.info.Mode()&executable != 0 {
+		fmt.Printf(green, name)
+	} else {
+		fmt.Printf(white, name)
 	}
 }
 
@@ -102,7 +110,7 @@ func list(option *listOption) error {
 		if file.info.Size() < size {
 			continue
 		}
-		printFile(file.info)
+		printFile(file, option.path)
 	}
 
 	return nil
@@ -120,13 +128,16 @@ func listCmd() *cobra.Command {
 	}
 	cmd.Flags().IntVarP(
 		&option.days, "days", "d", 0,
-		"List the files moved to the trash can within [days] days.")
+		"Show the files moved to the trash can within [days] days.")
 	cmd.Flags().StringVarP(
 		&option.size, "size", "s", "0B",
-		"List the files with size greater than [size].")
+		"Show the files with size greater than [size].")
 	cmd.Flags().BoolVarP(
 		&option.reverse, "reverse", "r", false,
-		"List in reverse order")
+		"Show in reverse order")
+	cmd.Flags().BoolVarP(
+		&option.path, "path", "p", false,
+		"Show the file paths")
 
 	return cmd
 }
