@@ -8,7 +8,12 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tayusa/go-choice"
 )
+
+type restoreOption struct {
+	all bool
+}
 
 type targets struct {
 	path      string
@@ -64,7 +69,7 @@ func getCorrespondingPath() (string, error) {
 	return path, nil
 }
 
-func getFilePathPairs() ([]filePathPair, error) {
+func getFilePathPairsInCorrespondingPath() ([]filePathPair, error) {
 	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {
 		return make([]filePathPair, 0), fmt.Errorf("%w", err)
@@ -74,8 +79,72 @@ func getFilePathPairs() ([]filePathPair, error) {
 	return filePathPairs, err
 }
 
-func restore(_ *cobra.Command, _ []string) error {
-	filePathPairs, err := getFilePathPairs()
+func getFilePaths() ([]string, error) {
+	root, err := getTrashCanPath()
+	if err != nil {
+		return make([]string, 0), fmt.Errorf("%w", err)
+	}
+
+	var paths []string
+	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+
+		if !info.IsDir() {
+			paths = append(paths, path)
+		}
+
+		return nil
+	}); err != nil {
+		return make([]string, 0), fmt.Errorf("%w", err)
+	}
+	return paths, nil
+}
+
+func chooseFilePaths() ([]string, error) {
+	filePaths, err := getFilePaths()
+	if err != nil {
+		return make([]string, 0), fmt.Errorf("%w", err)
+	}
+
+	fileChooser, err := choice.NewChooser(filePaths)
+	if err != nil {
+		return make([]string, 0), fmt.Errorf("%w", err)
+	}
+	return fileChooser.Run(), nil
+}
+
+func getFilePathPairs() ([]filePathPair, error) {
+	filePaths, err := chooseFilePaths()
+	if err != nil {
+		return make([]filePathPair, 0), fmt.Errorf("%w", err)
+	}
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return make([]filePathPair, 0), fmt.Errorf("%w", err)
+	}
+
+	filePathPairs := make([]filePathPair, 0, len(filePaths))
+	for _, filePath := range filePaths {
+		filePathPairs = append(filePathPairs, filePathPair{
+			oldPath: filePath,
+			newDir:  wd,
+			newFile: removeAffix(filepath.Base(filePath)),
+		})
+	}
+	return filePathPairs, err
+}
+
+func restore(option *restoreOption) error {
+	var filePathPairs []filePathPair
+	var err error
+	if option.all {
+		filePathPairs, err = getFilePathPairs()
+	} else {
+		filePathPairs, err = getFilePathPairsInCorrespondingPath()
+	}
 	if errors.Is(err, &dirNotFoundError{}) {
 		fmt.Println("Never used the move command in this path.")
 		return nil
@@ -93,11 +162,19 @@ func restore(_ *cobra.Command, _ []string) error {
 }
 
 func restoreCmd() *cobra.Command {
+	option := &restoreOption{}
+
 	var cmd = &cobra.Command{
 		Use:   "restore",
 		Short: "Move the files in the trash can to the current directory",
-		RunE:  restore,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return restore(option)
+		},
 	}
+
+	cmd.Flags().BoolVarP(
+		&option.all, "all", "a", false,
+		"show all files")
 
 	return cmd
 }
