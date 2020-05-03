@@ -1,8 +1,8 @@
 # trash
-Replacement for rm command.
+Replacement for rm command.  
 The trash command reproduces the directory structure into the trash can.
 # Setup
-Use $TRASH_CAN_PATH to specify path.
+Use $TRASH_CAN_PATH to specify path.  
 It is ~/.Trash in the default.
 # Available Commands
 ## move
