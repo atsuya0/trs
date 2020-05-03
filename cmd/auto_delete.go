@@ -45,10 +45,10 @@ func autoDel(option *autoDelOption) error {
 		if err := file.removeEmptyDir(); err != nil {
 			return fmt.Errorf("%w", err)
 		}
-		if bool, err := file.withoutPeriod(days); bool || file.info.IsDir() {
-			continue
-		} else if err != nil {
+		if bool, err := file.withinPeriod(days); err != nil {
 			return fmt.Errorf("%w", err)
+		} else if bool || file.info.IsDir() {
+			continue
 		}
 		if err := os.RemoveAll(file.path); err != nil {
 			return err

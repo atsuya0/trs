@@ -24,6 +24,14 @@ func (f *file) removeEmptyDir() error {
 	return nil
 }
 
+func (f *file) withinPeriod(sec int64) (bool, error) {
+	if bool, err := f.withoutPeriod(sec); err != nil {
+		return false, err
+	} else {
+		return !bool, nil
+	}
+}
+
 type Files []file
 
 func (f Files) Len() int {
