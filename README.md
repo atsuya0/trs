@@ -9,18 +9,22 @@ It is ~/.Trash in the default.
 Move the files to the trash can.
 ## restore
 Move the files in the trash can to the current directory.
+### --all(-a)
+Target all files.
 ## list
-List the files in the trash can.
+Show the files in the trash can.
+### --path(-p)
+Show the file paths in the trash can.
 ### --reverse(-r)
-List in reverse order.
+Show in reverse order.
 ### --days(-d) [days]
-List the files moved to the trash can within [days] days.
+Show the files moved to the trash can within [days] days.
 ```bash
 $ trash --days 1
 $ trash -d 10
 ```
 ### --size(-s) [size]
-List the files with size greater than [size] size.
+Show the files with size greater than [size] size.
 ```bash
 $ trash --size 500MB
 $ trash -s 1GB
