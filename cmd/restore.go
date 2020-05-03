@@ -20,27 +20,23 @@ type targets struct {
 	fileNames []string
 }
 
-func (t targets) createPairsToRestore() ([]filePathPair, error) {
+func (t targets) createPairsToRestore() (filePathPairs, error) {
 	wd, err := os.Getwd()
 	if err != nil {
-		return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		return make(filePathPairs, 0), fmt.Errorf("%w", err)
 	}
-	var filePathPairs []filePathPair
+	var pairs filePathPairs
 	for _, v := range t.fileNames {
-		pair := filePathPair{
+		filePathPair := filePathPair{
 			oldPath: filepath.Join(t.path, v),
 			newFile: removeAffix(v),
 			newDir:  wd,
 		}
-		if err := pair.oldFileExists(); err != nil {
-			return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		if err := pairs.add(filePathPair); err != nil {
+			return make(filePathPairs, 0), fmt.Errorf("%w", err)
 		}
-		if err := pair.newFileExists(); err != nil {
-			return make([]filePathPair, 0), fmt.Errorf("%w", err)
-		}
-		filePathPairs = append(filePathPairs, pair)
 	}
-	return filePathPairs, nil
+	return pairs, nil
 }
 
 // Remove a character string what given when moving to the trash can.
@@ -69,10 +65,10 @@ func getCorrespondingPath() (string, error) {
 	return path, nil
 }
 
-func getFilePathPairsInCorrespondingPath() ([]filePathPair, error) {
+func getFilePathPairsInCorrespondingPath() (filePathPairs, error) {
 	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {
-		return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		return make(filePathPairs, 0), fmt.Errorf("%w", err)
 	}
 	targets := targets{path: correspondingPath, fileNames: fileNames}
 	filePathPairs, err := targets.createPairsToRestore()
@@ -115,37 +111,33 @@ func chooseFilePaths() ([]string, error) {
 	return fileChooser.Run(), nil
 }
 
-func getFilePathPairs() ([]filePathPair, error) {
+func getFilePathPairs() (filePathPairs, error) {
 	filePaths, err := chooseFilePaths()
 	if err != nil {
-		return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		return make(filePathPairs, 0), fmt.Errorf("%w", err)
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		return make(filePathPairs, 0), fmt.Errorf("%w", err)
 	}
 
-	filePathPairs := make([]filePathPair, 0, len(filePaths))
+	pairs := make(filePathPairs, 0, len(filePaths))
 	for _, filePath := range filePaths {
-		pair := filePathPair{
+		filePathPair := filePathPair{
 			oldPath: filePath,
 			newDir:  wd,
 			newFile: removeAffix(filepath.Base(filePath)),
 		}
-		if err := pair.oldFileExists(); err != nil {
-			return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		if err := pairs.add(filePathPair); err != nil {
+			return make(filePathPairs, 0), fmt.Errorf("%w", err)
 		}
-		if err := pair.newFileExists(); err != nil {
-			return make([]filePathPair, 0), fmt.Errorf("%w", err)
-		}
-		filePathPairs = append(filePathPairs, pair)
 	}
-	return filePathPairs, err
+	return pairs, err
 }
 
 func restore(option *restoreOption) error {
-	var filePathPairs []filePathPair
+	var filePathPairs filePathPairs
 	var err error
 	if option.all {
 		filePathPairs, err = getFilePathPairs()

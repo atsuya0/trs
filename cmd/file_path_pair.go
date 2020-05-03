@@ -41,3 +41,17 @@ func (p *filePathPair) newFileExists() error {
 	}
 	return nil
 }
+
+type filePathPairs []filePathPair
+
+func (p *filePathPairs) add(filePathPair filePathPair) error {
+	if err := filePathPair.oldFileExists(); err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	if err := filePathPair.newFileExists(); err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	*p = append(*p, filePathPair)
+
+	return nil
+}
