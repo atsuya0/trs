@@ -47,7 +47,7 @@ func getDestination(filePath string) (string, string, error) {
 }
 
 func move(_ *cobra.Command, args []string) error {
-	filePathPairs := make([]filePathPair, 0, len(args))
+	filePathPairs := make(filePathPairs, 0, len(args))
 	for _, filePath := range args {
 		dirName, fileName, err := getDestination(filePath)
 		if err != nil {
@@ -58,13 +58,9 @@ func move(_ *cobra.Command, args []string) error {
 			newDir:  dirName,
 			newFile: fileName,
 		}
-		if err := filePathPair.oldFileExists(); err != nil {
+		if err := filePathPairs.add(filePathPair); err != nil {
 			return fmt.Errorf("%w", err)
 		}
-		if err := filePathPair.newFileExists(); err != nil {
-			return fmt.Errorf("%w", err)
-		}
-		filePathPairs = append(filePathPairs, filePathPair)
 	}
 	for _, filePathPair := range filePathPairs {
 		if err := filePathPair.rename(); err != nil {

@@ -28,12 +28,7 @@ func confirm(file string) bool {
 }
 
 func remove(_ *cobra.Command, args []string) error {
-	correspondingPath, err := getCorrespondingPath()
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	fileNames, err := chooseFiles(correspondingPath)
+	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
