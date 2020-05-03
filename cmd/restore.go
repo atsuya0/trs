@@ -128,11 +128,18 @@ func getFilePathPairs() ([]filePathPair, error) {
 
 	filePathPairs := make([]filePathPair, 0, len(filePaths))
 	for _, filePath := range filePaths {
-		filePathPairs = append(filePathPairs, filePathPair{
+		pair := filePathPair{
 			oldPath: filePath,
 			newDir:  wd,
 			newFile: removeAffix(filepath.Base(filePath)),
-		})
+		}
+		if err := pair.oldFileExists(); err != nil {
+			return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		}
+		if err := pair.newFileExists(); err != nil {
+			return make([]filePathPair, 0), fmt.Errorf("%w", err)
+		}
+		filePathPairs = append(filePathPairs, pair)
 	}
 	return filePathPairs, err
 }
