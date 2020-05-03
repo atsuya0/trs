@@ -74,7 +74,7 @@ func move(_ *cobra.Command, args []string) error {
 func moveCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "move",
-		Short: "Move the files to the trash can",
+		Short: "Move the files to the trash can.",
 		RunE:  move,
 	}
 

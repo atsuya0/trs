@@ -165,7 +165,7 @@ func restoreCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "restore",
-		Short: "Move the files in the trash can to the current directory",
+		Short: "Move the files in the trash can to the current directory.",
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return restore(option)
 		},
@@ -173,7 +173,7 @@ func restoreCmd() *cobra.Command {
 
 	cmd.Flags().BoolVarP(
 		&option.all, "all", "a", false,
-		"show all files")
+		"Target all the files.")
 
 	return cmd
 }

@@ -10,15 +10,15 @@ Move the files to the trash can.
 ## restore
 Move the files in the trash can to the current directory.
 ### --all(-a)
-Target all files.
+Target all the files.
 ## list
-Show the files in the trash can.
+Show the file names in the trash can.
 ### --path(-p)
 Show the file paths in the trash can.
 ### --reverse(-r)
-Show in reverse order.
+Show the file names in reverse order.
 ### --days(-d) [days]
-Show the files moved to the trash can within [days] days.
+Show the file names moved to the trash can within [days] days.
 ```bash
 $ trash --days 1
 $ trash -d 10

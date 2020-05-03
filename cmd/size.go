@@ -47,7 +47,7 @@ func convertNumbersToSymbols(size float64, cnt int) string {
 func sizeCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "size",
-		Short: "The size of the trash can directory",
+		Short: "The size of the trash can directory.",
 		RunE: func(_ *cobra.Command, _ []string) error {
 			path, err := getTrashCanPath()
 			if err != nil {
