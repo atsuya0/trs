@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/xerrors"
 )
 
 func rootCmd() *cobra.Command {
@@ -26,7 +25,7 @@ func rootCmd() *cobra.Command {
 
 func Execute() error {
 	if err := createTrashCan(); err != nil {
-		log.Fatalf("%+v\n", xerrors.Errorf("Cannot create the trash can: %w", err))
+		return fmt.Errorf("Cannot create the trash can: %w", err)
 	}
 
 	cmd := rootCmd()

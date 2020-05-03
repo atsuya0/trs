@@ -2,24 +2,19 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/xerrors"
 )
 
 const (
 	executable os.FileMode = 0111
-	header                 = "\x1b[7;39;49m%s\x1b[m\n"
 	green                  = "\x1b[1;32m%s\x1b[m\n"
 	blue                   = "\x1b[1;34m%s\x1b[m\n"
 	cyan                   = "\x1b[1;36m%s\x1b[m\n"
@@ -46,65 +41,68 @@ func convertSymbolsToNumbers(size string) int64 {
 	return 0
 }
 
-func printFiles(out io.Writer, path string, size int64) error {
-	files, err := ioutil.ReadDir(path)
+func printFile(file os.FileInfo) {
+	if file.IsDir() {
+		fmt.Printf(blue, file.Name())
+	} else if file.Mode()&os.ModeSymlink != 0 {
+		fmt.Printf(cyan, file.Name())
+	} else if file.Mode()&executable != 0 {
+		fmt.Printf(green, file.Name())
+	} else {
+		fmt.Printf(white, file.Name())
+	}
+}
+
+func getFiles() (Files, error) {
+	root, err := getTrashCanPath()
 	if err != nil {
-		return err
+		return make(Files, 0), fmt.Errorf("%w", err)
 	}
 
-	fmt.Fprintf(out, header, filepath.Base(path))
+	var files Files
+	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
 
-	for _, file := range files {
-		if file.Size() < size {
-			continue
+		if !info.IsDir() {
+			files = append(files, file{info: info, path: path})
 		}
-		if file.IsDir() {
-			fmt.Fprintf(out, blue, file.Name())
-		} else if file.Mode()&os.ModeSymlink != 0 {
-			fmt.Fprintf(out, cyan, file.Name())
-		} else if file.Mode()&executable != 0 {
-			fmt.Fprintf(out, green, file.Name())
-		} else {
-			fmt.Fprintf(out, white, file.Name())
-		}
+
+		return nil
+	}); err != nil {
+		return make(Files, 0), fmt.Errorf("%w", err)
 	}
-
-	return nil
+	return files, nil
 }
 
 func list(option *listOption) error {
-	path, err := getTrashCanPath()
+	files, err := getFiles()
 	if err != nil {
-		return err
-	}
-
-	dirs, err := ioutil.ReadDir(path)
-	if err != nil {
-		return err
+		return fmt.Errorf("%w", err)
 	}
 
 	if option.reverse {
-		sort.Sort(sort.Reverse(Dirs(dirs)))
+		sort.Sort(sort.Reverse(files))
 	} else {
-		sort.Sort(Dirs(dirs))
+		sort.Sort(Files(files))
 	}
 
-	daysAgo := time.Now().AddDate(0, 0, -option.days)
+	days := time.Now().AddDate(0, 0, -option.days).UnixNano()
 	size := convertSymbolsToNumbers(option.size)
 
-	for _, dir := range dirs {
-		internalStat, ok := dir.Sys().(*syscall.Stat_t)
-		if !ok {
-			return xerrors.New("fileInfo.Sys(): cast error")
+	for _, file := range files {
+		if option.days != 0 {
+			if bool, err := file.withoutPeriod(days); bool {
+				continue
+			} else if err != nil {
+				return fmt.Errorf("%w", err)
+			}
 		}
-		if option.days != 0 && greaterThenCtime(internalStat, daysAgo.UnixNano()) {
+		if file.info.Size() < size {
 			continue
 		}
-
-		if err = printFiles(os.Stdout,
-			filepath.Join(path, dir.Name()), size); err != nil {
-			return err
-		}
+		printFile(file.info)
 	}
 
 	return nil

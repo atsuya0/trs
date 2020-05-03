@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -12,28 +13,45 @@ type autoDelOption struct {
 	period int
 }
 
-func autoDel(option *autoDelOption) error {
-	path, err := getTrashCanPath()
+func getFilesAndDirs() (Files, error) {
+	root, err := getTrashCanPath()
 	if err != nil {
-		return err
+		return make(Files, 0), fmt.Errorf("%w", err)
 	}
 
-	dirs, err := ls(path)
-	if err != nil {
-		return err
-	}
-
-	period := time.Now().AddDate(0, 0, -option.period).UnixNano()
-
-	for _, dir := range dirs {
-		date, err := time.Parse("2006-01-02", dir)
+	var files Files
+	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("%w", err)
 		}
-		if date.UnixNano() < period {
-			if err := os.RemoveAll(filepath.Join(path, dir)); err != nil {
-				return err
-			}
+		files = append(files, file{info: info, path: path})
+
+		return nil
+	}); err != nil {
+		return make(Files, 0), fmt.Errorf("%w", err)
+	}
+	return files, nil
+}
+
+func autoDel(option *autoDelOption) error {
+	files, err := getFilesAndDirs()
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	days := time.Now().AddDate(0, 0, -option.period).UnixNano()
+
+	for _, file := range files {
+		if err := file.removeEmptyDir(); err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		if bool, err := file.withoutPeriod(days); bool || file.info.IsDir() {
+			continue
+		} else if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		if err := os.RemoveAll(file.path); err != nil {
+			return err
 		}
 	}
 
