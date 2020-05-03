@@ -62,16 +62,20 @@ func ls(path string) ([]string, error) {
 	return files, nil
 }
 
-func chooseFiles(path string) ([]string, error) {
-	files, err := ls(path)
+func chooseFilesInCorrespondingPath() (string, []string, error) {
+	correspondingPath, err := getCorrespondingPath()
 	if err != nil {
-		return make([]string, 0), fmt.Errorf("%w", err)
+		return "", make([]string, 0), fmt.Errorf("%w", err)
+	}
+	files, err := ls(correspondingPath)
+	if err != nil {
+		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
 	fileChooser, err := choice.NewChooser(files)
 	if err != nil {
-		return make([]string, 0), fmt.Errorf("%w", err)
+		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
-	return fileChooser.Run(), nil
+	return correspondingPath, fileChooser.Run(), nil
 }
 
 // If it is a hidden file with no extension, it returns an empty string.

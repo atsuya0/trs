@@ -62,12 +62,7 @@ func getCorrespondingPath() (string, error) {
 }
 
 func getPairs() ([]filePathPair, error) {
-	correspondingPath, err := getCorrespondingPath()
-	if err != nil {
-		return make([]filePathPair, 0), fmt.Errorf("%w", err)
-	}
-
-	fileNames, err := chooseFiles(correspondingPath)
+	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {
 		return make([]filePathPair, 0), fmt.Errorf("%w", err)
 	}
