@@ -1,3 +1,6 @@
+# trash
+Replacement for rm command.
+The trash command reproduces the directory structure into the trash can.
 # Setup
 Use $TRASH_CAN_PATH to specify path.
 It is ~/.Trash in the default.
@@ -24,17 +27,17 @@ $ trash -s 1GB
 ```
 ## size
 The size of the trash can directory.
-## delete
-Delete a file in the trash can.
-## auto-delete
-Delete the files if the date and time that the file moved in the trash can exceed the specified period.
+## remove
+Remove a file in the trash can.
+## auto-remove
+Remove the files if the date and time that the file moved in the trash can exceed the specified period.
 ### --period(-p) [days]
 The option can specify the period. It is 30 days in the default.
 ### .bashrc
 ```bash
-which trash &> /dev/null && trash auto-delete
+which trash &> /dev/null && trash auto-remove
 ```
 ### .zshrc
 ```zsh
-[[ -n ${commands[trash]} ]] && trash auto-delete
+[[ -n ${commands[trash]} ]] && trash auto-remove
 ```
