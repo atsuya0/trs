@@ -5,8 +5,8 @@ function _trash() {
       'restore' \
       'list' \
       'size' \
-      'delete' \
-      'auto-delete'
+      'remove' \
+      'auto-remove'
   }
 
   _arguments -C \
@@ -30,9 +30,9 @@ function _trash() {
         ;;
         (size)
         ;;
-        (delete)
+        (remove)
         ;;
-        (auto-delete)
+        (auto-remove)
         ;;
       esac
     ;;
