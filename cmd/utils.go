@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -8,7 +9,6 @@ import (
 	"sort"
 
 	"github.com/tayusa/go-choice"
-	"golang.org/x/xerrors"
 )
 
 func getTrashCanPath() (string, error) {
@@ -17,7 +17,7 @@ func getTrashCanPath() (string, error) {
 	}
 	user, err := user.Current()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w", err)
 	}
 	return filepath.Join(user.HomeDir, ".Trash"), nil
 }
@@ -26,7 +26,7 @@ func getTrashCanPath() (string, error) {
 func createTrashCan() error {
 	trashCanPath, err := getTrashCanPath()
 	if err != nil {
-		return xerrors.Errorf("Cannot get the path of the trash can: %w", err)
+		return fmt.Errorf("%w", err)
 	}
 
 	if _, err := os.Stat(trashCanPath); err == nil {
@@ -34,7 +34,7 @@ func createTrashCan() error {
 	}
 
 	if err := os.Mkdir(trashCanPath, 0700); err != nil {
-		return err
+		return fmt.Errorf("%w", err)
 	}
 
 	return nil
@@ -44,7 +44,7 @@ func createTrashCan() error {
 func ls(path string) ([]string, error) {
 	fd, err := os.Open(path)
 	if err != nil {
-		return []string{}, err
+		return []string{}, fmt.Errorf("%w", err)
 	}
 
 	defer func() {
@@ -55,7 +55,7 @@ func ls(path string) ([]string, error) {
 
 	files, err := fd.Readdirnames(0)
 	if err != nil {
-		return []string{}, err
+		return []string{}, fmt.Errorf("%w", err)
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(files)))
 
@@ -65,11 +65,11 @@ func ls(path string) ([]string, error) {
 func chooseFiles(path string) ([]string, error) {
 	files, err := ls(path)
 	if err != nil {
-		return make([]string, 0), xerrors.Errorf("Cannot get the filenames: %w", err)
+		return make([]string, 0), fmt.Errorf("%w", err)
 	}
 	fileChooser, err := choice.NewChooser(files)
 	if err != nil {
-		return make([]string, 0), xerrors.Errorf("Cannot generate the chooser: %w", err)
+		return make([]string, 0), fmt.Errorf("%w", err)
 	}
 	return fileChooser.Run(), nil
 }
@@ -81,25 +81,5 @@ func getExt(fileName string) string {
 		return ""
 	} else {
 		return ext
-	}
-}
-
-// Specify the files to restore or delete.
-func specifyTargets(trashCanPath string) (string, []string, error) {
-	for {
-		dates, err := chooseFiles(trashCanPath)
-		date := dates[0]
-		if err != nil {
-			return "", make([]string, 0), xerrors.Errorf("Cannot choose the date: %w", err)
-		} else if date == "" {
-			return "", make([]string, 0), nil
-		}
-
-		fileNames, err := chooseFiles(filepath.Join(trashCanPath, date))
-		if err != nil {
-			return "", make([]string, 0), xerrors.Errorf("Cannot choose the file: %w", err)
-		} else if len(fileNames) != 0 {
-			return date, fileNames, nil
-		}
 	}
 }

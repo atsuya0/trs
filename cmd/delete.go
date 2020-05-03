@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/xerrors"
 )
 
 func confirmDel(file string) bool {
@@ -29,19 +28,19 @@ func confirmDel(file string) bool {
 }
 
 func del(_ *cobra.Command, args []string) error {
-	path, err := getTrashCanPath()
+	correspondingPath, err := getCorrespondingPath()
 	if err != nil {
-		return err
+		return fmt.Errorf("%w", err)
 	}
 
-	date, fileNames, err := specifyTargets(path)
+	fileNames, err := chooseFiles(correspondingPath)
 	if err != nil {
-		return xerrors.Errorf("Cannot specify the files to restore: %w", err)
+		return fmt.Errorf("%w", err)
 	}
 
 	for _, fileName := range fileNames {
 		if confirmDel(fileName) {
-			if err := os.RemoveAll(filepath.Join(path, date, fileName)); err != nil {
+			if err := os.RemoveAll(filepath.Join(correspondingPath, fileName)); err != nil {
 				return err
 			}
 		}

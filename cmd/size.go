@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/xerrors"
 )
 
 var (
@@ -29,7 +28,7 @@ func getSize(trashCanPath string) (int64, error) {
 		return nil
 	})
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%w", err)
 	}
 	return size, nil
 }
@@ -45,10 +44,6 @@ func convertNumbersToSymbols(size float64, cnt int) string {
 	return convertNumbersToSymbols(size, cnt+1)
 }
 
-func printSize(size int64) {
-	fmt.Println(convertNumbersToSymbols(float64(size), 0))
-}
-
 func sizeCmd() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "size",
@@ -60,10 +55,10 @@ func sizeCmd() *cobra.Command {
 			}
 			size, err := getSize(path)
 			if err != nil {
-				return xerrors.Errorf("Don't get the the allocated size of trash can: %w", err)
+				return fmt.Errorf("Don't get the the allocated size of trash can: %w", err)
 			}
 
-			printSize(size)
+			fmt.Println(convertNumbersToSymbols(float64(size), 0))
 
 			return nil
 		},
