@@ -15,10 +15,10 @@ func rootCmd() *cobra.Command {
 
 	cmd.AddCommand(moveCmd())
 	cmd.AddCommand(listCmd())
-	cmd.AddCommand(deleteCmd())
+	cmd.AddCommand(removeCmd())
 	cmd.AddCommand(restoreCmd())
 	cmd.AddCommand(sizeCmd())
-	cmd.AddCommand(autoDeleteCmd())
+	cmd.AddCommand(autoRemoveCmd())
 
 	return cmd
 }

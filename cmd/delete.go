@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func confirmDel(file string) bool {
+func confirm(file string) bool {
 	scanner := bufio.NewScanner(os.Stdin)
 	const message = "target: %s\n'yes' or 'no' >>> "
 
@@ -27,7 +27,7 @@ func confirmDel(file string) bool {
 	return false
 }
 
-func del(_ *cobra.Command, args []string) error {
+func remove(_ *cobra.Command, args []string) error {
 	correspondingPath, err := getCorrespondingPath()
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -39,7 +39,7 @@ func del(_ *cobra.Command, args []string) error {
 	}
 
 	for _, fileName := range fileNames {
-		if confirmDel(fileName) {
+		if confirm(fileName) {
 			if err := os.RemoveAll(filepath.Join(correspondingPath, fileName)); err != nil {
 				return err
 			}
@@ -49,11 +49,11 @@ func del(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func deleteCmd() *cobra.Command {
+func removeCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "delete",
-		Short: "Delete a file in the trash can",
-		RunE:  del,
+		Use:   "remove",
+		Short: "Remove a file in the trash can",
+		RunE:  remove,
 	}
 
 	return cmd

@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type autoDelOption struct {
+type autoRemoveOption struct {
 	period int
 }
 
@@ -33,7 +33,7 @@ func getFilesAndDirs() (Files, error) {
 	return files, nil
 }
 
-func autoDel(option *autoDelOption) error {
+func autoRemove(option *autoRemoveOption) error {
 	files, err := getFilesAndDirs()
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -58,20 +58,20 @@ func autoDel(option *autoDelOption) error {
 	return nil
 }
 
-func autoDeleteCmd() *cobra.Command {
-	option := &autoDelOption{}
+func autoRemoveCmd() *cobra.Command {
+	option := &autoRemoveOption{}
 
 	var cmd = &cobra.Command{
-		Use:   "auto-delete",
-		Short: "Delete the files if the date and time that the file moved in the trash can exceed the specified period.",
+		Use:   "auto-remove",
+		Short: "Remove the files if the date and time that the file moved in the trash can exceed the specified period.",
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return autoDel(option)
+			return autoRemove(option)
 		},
 	}
 
 	cmd.Flags().IntVarP(
 		&option.period, "period", "p", 30,
-		"Delete the files moved in the trash can [days] days ago and later.")
+		"Remove the files moved in the trash can [days] days ago and later.")
 
 	return cmd
 }
