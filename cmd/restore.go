@@ -39,8 +39,11 @@ func (t targets) createPairsToRestore() ([]filePathPair, error) {
 }
 
 // Remove a character string what given when moving to the trash can.
-func removeAffix(org string) string {
-	return org[:strings.LastIndex(org, "_")] + getExt(org)
+func removeAffix(fileName string) string {
+	if index := strings.LastIndex(fileName, "_"); index >= 0 {
+		return fileName[:index] + getExt(fileName)
+	}
+	return fileName
 }
 
 func getCorrespondingPath() (string, error) {
