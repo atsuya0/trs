@@ -61,7 +61,7 @@ func getCorrespondingPath() (string, error) {
 	return path, nil
 }
 
-func getPairs() ([]filePathPair, error) {
+func getFilePathPairs() ([]filePathPair, error) {
 	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {
 		return make([]filePathPair, 0), fmt.Errorf("%w", err)
@@ -72,7 +72,7 @@ func getPairs() ([]filePathPair, error) {
 }
 
 func restore(_ *cobra.Command, _ []string) error {
-	filePathPairs, err := getPairs()
+	filePathPairs, err := getFilePathPairs()
 	if errors.Is(err, &dirNotFoundError{}) {
 		fmt.Println("Never used the move command in this path.")
 		return nil
