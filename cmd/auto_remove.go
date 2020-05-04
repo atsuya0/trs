@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -13,28 +12,8 @@ type autoRemoveOption struct {
 	period int
 }
 
-func getFilesAndDirs() (Files, error) {
-	root, err := getTrashCanPath()
-	if err != nil {
-		return make(Files, 0), fmt.Errorf("%w", err)
-	}
-
-	var files Files
-	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w", err)
-		}
-		files = append(files, file{info: info, path: path})
-
-		return nil
-	}); err != nil {
-		return make(Files, 0), fmt.Errorf("%w", err)
-	}
-	return files, nil
-}
-
 func autoRemove(option *autoRemoveOption) error {
-	files, err := getFilesAndDirs()
+	files, err := getFilesAndDirsInTrash()
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}

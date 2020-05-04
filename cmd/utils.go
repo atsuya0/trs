@@ -87,3 +87,23 @@ func getExt(fileName string) string {
 		return ext
 	}
 }
+
+func getFilesAndDirsInTrash() (Files, error) {
+	root, err := getTrashCanPath()
+	if err != nil {
+		return make(Files, 0), fmt.Errorf("%w", err)
+	}
+
+	var files Files
+	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		files = append(files, file{info: info, path: path})
+
+		return nil
+	}); err != nil {
+		return make(Files, 0), fmt.Errorf("%w", err)
+	}
+	return files, nil
+}
