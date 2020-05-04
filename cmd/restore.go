@@ -20,7 +20,7 @@ type targets struct {
 	fileNames []string
 }
 
-func (t targets) createPairsToRestore() (filePathPairs, error) {
+func (t targets) createPairs() (filePathPairs, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return make(filePathPairs, 0), fmt.Errorf("%w", err)
@@ -71,7 +71,7 @@ func getFilePathPairsInCorrespondingPath() (filePathPairs, error) {
 		return make(filePathPairs, 0), fmt.Errorf("%w", err)
 	}
 	targets := targets{path: correspondingPath, fileNames: fileNames}
-	filePathPairs, err := targets.createPairsToRestore()
+	filePathPairs, err := targets.createPairs()
 	return filePathPairs, err
 }
 
