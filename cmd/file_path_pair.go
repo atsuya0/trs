@@ -12,12 +12,12 @@ type filePathPair struct {
 	newFile string
 }
 
-func (p *filePathPair) join() string {
+func (p *filePathPair) newPath() string {
 	return filepath.Join(p.newDir, p.newFile)
 }
 
 func (p *filePathPair) rename() error {
-	return os.Rename(p.oldPath, p.join())
+	return os.Rename(p.oldPath, p.newPath())
 }
 
 func (p *filePathPair) oldFileExists() error {
@@ -36,7 +36,7 @@ func (p *filePathPair) newFileExists() error {
 	}
 	for _, file := range fileNames {
 		if p.newFile == file {
-			return &alreadyFileExistsError{path: p.join()}
+			return &alreadyFileExistsError{path: p.newPath()}
 		}
 	}
 	return nil

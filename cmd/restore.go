@@ -20,7 +20,7 @@ type targets struct {
 	fileNames []string
 }
 
-func (t targets) createPairsToRestore() (filePathPairs, error) {
+func (t targets) createPairs() (filePathPairs, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return make(filePathPairs, 0), fmt.Errorf("%w", err)
@@ -47,31 +47,13 @@ func removeAffix(fileName string) string {
 	return fileName
 }
 
-func getCorrespondingPath() (string, error) {
-	root, err := getTrashCanPath()
-	if err != nil {
-		return "", fmt.Errorf("%w", err)
-	}
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("%w", err)
-	}
-
-	path := filepath.Join(root, wd)
-	if _, err := os.Stat(path); err != nil {
-		return "", &dirNotFoundError{path: path}
-	}
-
-	return path, nil
-}
-
 func getFilePathPairsInCorrespondingPath() (filePathPairs, error) {
 	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {
 		return make(filePathPairs, 0), fmt.Errorf("%w", err)
 	}
 	targets := targets{path: correspondingPath, fileNames: fileNames}
-	filePathPairs, err := targets.createPairsToRestore()
+	filePathPairs, err := targets.createPairs()
 	return filePathPairs, err
 }
 
