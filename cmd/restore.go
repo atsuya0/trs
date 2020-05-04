@@ -47,24 +47,6 @@ func removeAffix(fileName string) string {
 	return fileName
 }
 
-func getCorrespondingPath() (string, error) {
-	root, err := getTrashCanPath()
-	if err != nil {
-		return "", fmt.Errorf("%w", err)
-	}
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("%w", err)
-	}
-
-	path := filepath.Join(root, wd)
-	if _, err := os.Stat(path); err != nil {
-		return "", &dirNotFoundError{path: path}
-	}
-
-	return path, nil
-}
-
 func getFilePathPairsInCorrespondingPath() (filePathPairs, error) {
 	correspondingPath, fileNames, err := chooseFilesInCorrespondingPath()
 	if err != nil {

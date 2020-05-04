@@ -62,6 +62,24 @@ func ls(path string) ([]string, error) {
 	return files, nil
 }
 
+func getCorrespondingPath() (string, error) {
+	root, err := getTrashCanPath()
+	if err != nil {
+		return "", fmt.Errorf("%w", err)
+	}
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("%w", err)
+	}
+
+	path := filepath.Join(root, wd)
+	if _, err := os.Stat(path); err != nil {
+		return "", &dirNotFoundError{path: path}
+	}
+
+	return path, nil
+}
+
 func chooseFilesInCorrespondingPath() (string, []string, error) {
 	correspondingPath, err := getCorrespondingPath()
 	if err != nil {
