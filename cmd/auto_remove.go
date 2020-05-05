@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -26,8 +27,12 @@ func autoRemove(option *autoRemoveOption) error {
 		} else if bool {
 			continue
 		}
-		if err := os.RemoveAll(file.path); err != nil {
-			return err
+		if err := os.RemoveAll(file.path); errors.Is(err, os.ErrPermission) {
+			if err := writeLog(err.Error()); err != nil {
+				return fmt.Errorf("%w", err)
+			}
+		} else if err != nil {
+			return fmt.Errorf("%w", err)
 		}
 	}
 	for _, dir := range dirs {

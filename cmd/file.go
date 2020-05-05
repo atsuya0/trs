@@ -18,7 +18,7 @@ func (f *file) removeEmptyDir() error {
 		return fmt.Errorf("%w", err)
 	} else if len(childFiles) == 0 {
 		if err := os.RemoveAll(f.path); err != nil {
-			return err
+			return fmt.Errorf("%w", err)
 		}
 	}
 	return nil
