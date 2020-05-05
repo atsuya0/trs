@@ -61,7 +61,7 @@ func printFile(file file, path bool) {
 }
 
 func list(option *listOption) error {
-	files, err := getFilesInTrash()
+	files, _, err := getFilesInTrash()
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}

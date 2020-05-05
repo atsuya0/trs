@@ -106,47 +106,30 @@ func getExt(fileName string) string {
 	}
 }
 
-func getFilesAndDirsInTrash() (Files, error) {
+func getFilesInTrash() (Files, Files, error) {
 	root, err := getTrashCanPath()
 	if err != nil {
-		return make(Files, 0), fmt.Errorf("%w", err)
+		return make(Files, 0), make(Files, 0), fmt.Errorf("%w", err)
 	}
 
 	var files Files
-	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w", err)
-		}
-		files = append(files, file{info: info, path: path})
-
-		return nil
-	}); err != nil {
-		return make(Files, 0), fmt.Errorf("%w", err)
-	}
-	return files, nil
-}
-
-func getFilesInTrash() (Files, error) {
-	root, err := getTrashCanPath()
-	if err != nil {
-		return make(Files, 0), fmt.Errorf("%w", err)
-	}
-
-	var files Files
+	var dirs Files
 	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("%w", err)
 		}
 
-		if !info.IsDir() {
+		if info.IsDir() {
+			dirs = append(dirs, file{info: info, path: path})
+		} else {
 			files = append(files, file{info: info, path: path})
 		}
 
 		return nil
 	}); err != nil {
-		return make(Files, 0), fmt.Errorf("%w", err)
+		return make(Files, 0), make(Files, 0), fmt.Errorf("%w", err)
 	}
-	return files, nil
+	return files, dirs, nil
 }
 
 func getFilePathsInTrash() ([]string, error) {
