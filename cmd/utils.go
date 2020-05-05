@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/tayusa/go-choice"
+	"github.com/tayusa/go-chooser"
 )
 
 func getTrashCanPath() (string, error) {
@@ -89,7 +89,7 @@ func chooseFilesInCorrespondingPath() (string, []string, error) {
 	if err != nil {
 		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
-	fileChooser, err := choice.NewChooser(files)
+	fileChooser, err := chooser.NewChooser(files)
 	if err != nil {
 		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
@@ -161,7 +161,7 @@ func chooseFilePaths() ([]string, error) {
 		return make([]string, 0), fmt.Errorf("%w", err)
 	}
 
-	fileChooser, err := choice.NewChooser(filePaths)
+	fileChooser, err := chooser.NewChooser(filePaths)
 	if err != nil {
 		return make([]string, 0), fmt.Errorf("%w", err)
 	}
