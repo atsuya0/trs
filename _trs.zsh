@@ -1,4 +1,4 @@
-function _trash() {
+function _trs() {
   function sub_commands() {
     _values 'Commands' \
       'move' \
@@ -41,4 +41,4 @@ function _trash() {
     ;;
   esac
 }
-compdef _trash trash
+compdef _trs trs

@@ -9,7 +9,7 @@ import (
 
 func rootCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "trash",
+		Use:   "trs",
 		Short: "Move the files to the trash can.",
 	}
 

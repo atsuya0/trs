@@ -1,4 +1,4 @@
-module github.com/tayusa/trash
+module github.com/tayusa/trs
 
 go 1.14
 
