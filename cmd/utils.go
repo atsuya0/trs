@@ -11,6 +11,10 @@ import (
 	"github.com/tayusa/go-chooser"
 )
 
+const (
+	logFileName = "trs.log"
+)
+
 func getTrashCanPath() (string, error) {
 	if path := os.Getenv("TRASH_CAN_PATH"); path != "" {
 		return path, nil
@@ -166,4 +170,24 @@ func chooseFilePaths() ([]string, error) {
 		return make([]string, 0), fmt.Errorf("%w", err)
 	}
 	return fileChooser.Run(), nil
+}
+
+func writeLog(msg string) error {
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	f, err := os.Create(filepath.Join(dir, logFileName))
+	defer func() {
+		if err = f.Close(); err != nil {
+			log.Fatalf("%+v\n", err)
+		}
+	}()
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	if _, err := f.WriteString(msg); err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	return nil
 }
