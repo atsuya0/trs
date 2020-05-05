@@ -13,7 +13,7 @@ type autoRemoveOption struct {
 }
 
 func autoRemove(option *autoRemoveOption) error {
-	files, err := getFilesAndDirsInTrash()
+	files, dirs, err := getFilesInTrash()
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -21,16 +21,18 @@ func autoRemove(option *autoRemoveOption) error {
 	days := time.Now().AddDate(0, 0, -option.period).UnixNano()
 
 	for _, file := range files {
-		if err := file.removeEmptyDir(); err != nil {
-			return fmt.Errorf("%w", err)
-		}
 		if bool, err := file.withinPeriod(days); err != nil {
 			return fmt.Errorf("%w", err)
-		} else if bool || file.info.IsDir() {
+		} else if bool {
 			continue
 		}
 		if err := os.RemoveAll(file.path); err != nil {
 			return err
+		}
+	}
+	for _, dir := range dirs {
+		if err := dir.removeEmptyDir(); err != nil {
+			return fmt.Errorf("%w", err)
 		}
 	}
 

@@ -1,4 +1,7 @@
-.PHONY: install install-for-mac format
+.PHONY: build install install-for-mac format
+
+build: format
+	@go build
 
 install: format
 	@go install
