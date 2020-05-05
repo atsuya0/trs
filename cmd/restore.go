@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tayusa/go-choice"
 )
 
 type restoreOption struct {
@@ -55,42 +54,6 @@ func getFilePathPairsInCorrespondingPath() (filePathPairs, error) {
 	targets := targets{path: correspondingPath, fileNames: fileNames}
 	filePathPairs, err := targets.createPairs()
 	return filePathPairs, err
-}
-
-func getFilePaths() ([]string, error) {
-	root, err := getTrashCanPath()
-	if err != nil {
-		return make([]string, 0), fmt.Errorf("%w", err)
-	}
-
-	var paths []string
-	if err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w", err)
-		}
-
-		if !info.IsDir() {
-			paths = append(paths, path)
-		}
-
-		return nil
-	}); err != nil {
-		return make([]string, 0), fmt.Errorf("%w", err)
-	}
-	return paths, nil
-}
-
-func chooseFilePaths() ([]string, error) {
-	filePaths, err := getFilePaths()
-	if err != nil {
-		return make([]string, 0), fmt.Errorf("%w", err)
-	}
-
-	fileChooser, err := choice.NewChooser(filePaths)
-	if err != nil {
-		return make([]string, 0), fmt.Errorf("%w", err)
-	}
-	return fileChooser.Run(), nil
 }
 
 func getFilePathPairs() (filePathPairs, error) {
