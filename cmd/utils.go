@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"sort"
 
 	"github.com/tayusa/go-chooser"
@@ -66,6 +67,21 @@ func ls(path string) ([]string, error) {
 	return files, nil
 }
 
+// Filter files that have an affix.
+func filterFilesHaveAffix(fileNames []string) ([]string, error) {
+	r, err := regexp.Compile("_[0-9]*-[0-9]*-[0-9]*T[0-9]*:[0-9]*:[0-9]*.*$")
+	if err != nil {
+		return make([]string, 0), err
+	}
+	var filteredFiles []string
+	for _, fileName := range fileNames {
+		if r.MatchString(fileName) {
+			filteredFiles = append(filteredFiles, fileName)
+		}
+	}
+	return filteredFiles, nil
+}
+
 func getCorrespondingPath() (string, error) {
 	root, err := getTrashCanPath()
 	if err != nil {
@@ -93,7 +109,11 @@ func chooseFilesInCorrespondingPath() (string, []string, error) {
 	if err != nil {
 		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
-	fileChooser, err := chooser.NewChooser(files)
+	filteredFiles, err := filterFilesHaveAffix(files)
+	if err != nil {
+		return "", make([]string, 0), fmt.Errorf("%w", err)
+	}
+	fileChooser, err := chooser.NewChooser(filteredFiles)
 	if err != nil {
 		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
