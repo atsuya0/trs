@@ -3,10 +3,10 @@
 build: format
 	@go build
 
-install: format
+install:
 	@go install
 
-install-for-mac: format
+install-for-mac:
 	@go install -tags mac
 
 format:
