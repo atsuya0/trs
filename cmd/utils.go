@@ -117,7 +117,11 @@ func chooseFilesInCorrespondingPath() (string, []string, error) {
 	if err != nil {
 		return "", make([]string, 0), fmt.Errorf("%w", err)
 	}
-	return correspondingPath, fileChooser.Run(), nil
+	if _, files, err := fileChooser.Run(); err != nil {
+		return "", make([]string, 0), fmt.Errorf("%w", err)
+	} else {
+		return correspondingPath, files, nil
+	}
 }
 
 // If it is a hidden file with no extension, it returns an empty string.
@@ -189,7 +193,11 @@ func chooseFilePaths() ([]string, error) {
 	if err != nil {
 		return make([]string, 0), fmt.Errorf("%w", err)
 	}
-	return fileChooser.Run(), nil
+	if _, files, err := fileChooser.Run(); err != nil {
+		return make([]string, 0), fmt.Errorf("%w", err)
+	} else {
+		return files, nil
+	}
 }
 
 func writeLog(msg string) error {
