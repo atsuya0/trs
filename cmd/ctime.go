@@ -1,4 +1,4 @@
-// +build !mac
+// +build linux
 
 package cmd
 
