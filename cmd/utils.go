@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/tayusa/go-chooser"
+	"github.com/atsuya0/go-chooser"
 )
 
 const (
