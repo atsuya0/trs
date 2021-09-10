@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/tayusa/trs/cmd"
+	"github.com/atsuya0/trs/cmd"
 )
 
 func main() {
