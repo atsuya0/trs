@@ -9,5 +9,3 @@ builds:
     - darwin
   goarch:
     - amd64
-release:
-  prerelease: auto
